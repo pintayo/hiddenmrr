@@ -23,9 +23,9 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
           <p className="text-muted-foreground max-w-md mb-8">
             Get lifetime access to our AI evaluation engine. Connect your OpenAI key and instantly find your next $1k/mo venture.
           </p>
-          {/* Replace this href with actual LemonSqueezy Checkout URL injected with custom data (user_id) */}
+          {/* Use the dynamic LemonSqueezy Checkout URL injected with custom data (user_id) */}
           <a
-            href={`#lemonsqueezy-checkout-url?checkout[custom][user_id]=${userId}`}
+            href={`${process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_URL}?checkout[custom][user_id]=${userId}`}
             className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-4 text-lg font-semibold shadow-[0_0_30px_-5px] shadow-primary/50 transition-all hover:scale-105"
           >
             Get Lifetime Access - $49
