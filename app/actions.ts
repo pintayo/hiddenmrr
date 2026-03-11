@@ -56,10 +56,21 @@ export async function analyzeSelectedRepos(
   model: string = 'gpt-4o-mini'
 ) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken) throw new Error("Unauthorized");
+  if (!session?.accessToken || !session?.user?.id) throw new Error("Unauthorized");
   if (!apiKey) throw new Error("No API key provided");
-  if (!repoFullNames || repoFullNames.length === 0) throw new Error("No repositories selected for analysis.");
-  if (repoFullNames.length > 20) throw new Error("Maximum 20 repositories per analysis.");
+
+  // SERVER-SIDE PAYWALL CHECK: Prevent direct server action calls from unpaid users
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('has_paid')
+    .eq('id', session.user.id)
+    .single();
+
+  if (!profile?.has_paid) {
+    throw new Error("Payment required. Please complete checkout first.");
+  }
+
+  const openai = new OpenAI({ apiKey });
 
   const reposData = await Promise.all(repoFullNames.map(async (fullName) => {
     // Fetch critical files: README and package.json/requirements.txt

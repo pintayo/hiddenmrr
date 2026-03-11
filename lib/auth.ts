@@ -16,14 +16,17 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      if (!user.email || !user.id || !account?.access_token) return false;
+      if (!user.email || !account?.access_token || !account?.providerAccountId) return false;
 
       // Sync user profile to Supabase on first login
-      const { error } = await supabaseAdmin
+      // CRITICAL: Use providerAccountId (GitHub numeric ID) as the row ID.
+      // This is the same value passed to Lemon Squeezy checkout as user_id
+      // and used by the webhook to find and update the profile row.
+      const { data, error } = await supabaseAdmin
         .from('profiles')
         .upsert(
           { 
-            id: user.id, 
+            id: account.providerAccountId,
             email: user.email,
           },
           { onConflict: 'id' }
