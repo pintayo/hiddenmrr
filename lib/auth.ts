@@ -19,19 +19,20 @@ export const authOptions: NextAuthOptions = {
       if (!user.email || !user.id || !account?.access_token) return false;
 
       // Sync user profile to Supabase on first login
-      const { data, error } = await supabaseAdmin
+      const { error } = await supabaseAdmin
         .from('profiles')
         .upsert(
           { 
-            id: user.id, // we might need a UUID mapping, but GitHub uses integer IDs usually. We configured Supabase 'id uuid references auth.users'. 
+            id: user.id, 
             email: user.email,
           },
-          { onConflict: 'email' }
+          { onConflict: 'id' }
         );
 
-      /* NOTE: In the PRD, Supabase Schema expects id to be a UUID referencing auth.users.
-         Since we are using NextAuth standalone (not Supabase Auth), we don't have an auth.users record.
-         We need to notify the user about this schema discrepancy. For now, we save GitHub token to session. */
+      if (error) {
+        console.error("Error syncing profile to Supabase:", error);
+      }
+
       return true;
     },
     async jwt({ token, account }) {

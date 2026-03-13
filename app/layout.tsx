@@ -2,8 +2,13 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Providers from './providers';
+import Link from 'next/link';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'HiddenMRR | Find the $1,000/mo SaaS Hiding in Your GitHub',
@@ -21,16 +26,51 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} bg-background text-foreground antialiased min-h-screen flex flex-col`}>
+      <body className={`${inter.variable} bg-background text-foreground antialiased min-h-screen flex flex-col font-sans`}>
         <Providers>
-          {children}
+          {/* ── Navbar ─────────────────────────────────────── */}
+          <header className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-xl">
+            <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+              {/* Left: logo + wordmark */}
+              <Link href="/" className="flex items-center gap-2.5">
+                <span className="text-white font-black text-lg tracking-tighter">
+                  HiddenMRR
+                </span>
+              </Link>
+
+              {/* Right: Auth buttons */}
+              {session ? (
+                <Link
+                  href="/dashboard"
+                  className="rounded-lg border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary
+                             hover:bg-primary/20 transition-all duration-150"
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <Link
+                  href="/api/auth/signin"
+                  className="rounded-lg border border-white/15 bg-white/[0.04] px-4 py-1.5 text-sm font-medium text-white
+                             hover:bg-white/[0.08] hover:border-white/25 transition-all duration-150"
+                >
+                  Login
+                </Link>
+              )}
+            </div>
+          </header>
+
+          {/* ── Page content (offset for fixed navbar) ───── */}
+          <div className="flex flex-col flex-1 pt-16">
+            {children}
+          </div>
         </Providers>
       </body>
     </html>

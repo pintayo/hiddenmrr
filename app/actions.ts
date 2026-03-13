@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function getUserProfile() {
   const session = await getServerSession(authOptions);
@@ -45,12 +47,15 @@ export async function fetchPrivateRepos() {
   }));
 }
 
-export async function analyzeSelectedRepos(repoFullNames: string[], apiKey: string) {
+export async function analyzeSelectedRepos(
+  repoFullNames: string[], 
+  apiKey: string, 
+  provider: 'openai' | 'anthropic' | 'google' = 'openai',
+  model: string = 'gpt-4o-mini'
+) {
   const session = await getServerSession(authOptions);
   if (!session?.accessToken) throw new Error("Unauthorized");
   if (!apiKey) throw new Error("No API key provided");
-
-  const openai = new OpenAI({ apiKey });
 
   const reposData = await Promise.all(repoFullNames.map(async (fullName) => {
     // Fetch critical files: README and package.json/requirements.txt
@@ -86,9 +91,15 @@ export async function analyzeSelectedRepos(repoFullNames: string[], apiKey: stri
     };
   }));
 
-  const prompt = `You are a ruthless, highly successful indie hacker and software appraiser. The user is feeding you README.md and package.json files from their abandoned side projects. Your job is to identify the single project with the fastest path to Monthly Recurring Revenue (MRR). Ignore technical debt; focus purely on market demand, B2B potential, and monetization.
+  const systemPrompt = `You are a ruthless, highly successful indie hacker and software appraiser. The user is feeding you README.md and package.json files from their abandoned side projects. Your job is to identify the single project with the fastest path to Monthly Recurring Revenue (MRR). Ignore technical debt; focus purely on market demand, B2B potential, and monetization.
 
-You MUST return a raw JSON object with this exact structure (no markdown formatting, just parseable JSON):
+You MUST return a RAW JSON object. 
+- NO markdown formatting.
+- NO backticks.
+- NO preamble or conversational text.
+- ONLY the JSON object.
+
+Structure:
 {
 "topProjectName": "String",
 "completenessScore": "Number 1-100",
@@ -100,31 +111,94 @@ You MUST return a raw JSON object with this exact structure (no markdown formatt
 "Step 2: Exact marketing action (where to post, what to say)",
 "Step 3: How to acquire the first paying customer"
 ]
-}
+}`;
 
-  Repositories Data:
-  ${JSON.stringify(reposData, null, 2)}`;
+  const userPrompt = `Repositories Data:\n${JSON.stringify(reposData, null, 2)}`;
+
+  let rawContent = "";
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Cost efficient for BYOK
-      messages: [
-        { role: "system", content: "You output strict JSON. No markdown backticks." },
-        { role: "user", content: prompt }
-      ],
-      response_format: { type: "json_object" }
-    });
+    if (provider === 'openai') {
+      const openai = new OpenAI({ apiKey });
+      const completion = await openai.chat.completions.create({
+        model: model,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        response_format: { type: "json_object" }
+      });
+      rawContent = completion.choices[0].message.content || '{}';
+    } 
+    else if (provider === 'anthropic') {
+      const anthropic = new Anthropic({ apiKey });
+      const message = await anthropic.messages.create({
+        model: model,
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userPrompt }],
+      });
+      if (message.content[0].type === 'text') {
+        rawContent = message.content[0].text;
+      }
+    } 
+    else if (provider === 'google') {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const googleModel = genAI.getGenerativeModel({ model: model });
+      const result = await googleModel.generateContent({
+        contents: [{ role: 'user', parts: [{ text: systemPrompt + "\n\n" + userPrompt }] }],
+        generationConfig: { responseMimeType: "application/json" }
+      });
+      rawContent = result.response.text();
+    }
 
-    return JSON.parse(completion.choices[0].message.content || '{}');
+    // Attempt to parse and clean markdown if provider didn't handle it
+    let result;
+    try {
+      const cleanJson = rawContent.replace(/```json\n?|\n?```/g, '').trim();
+      result = JSON.parse(cleanJson);
+    } catch (e) {
+      console.error("Failed to parse AI response:", rawContent);
+      throw new Error("The AI returned an invalid response format. Please try again.");
+    }
+
+    // Persist to Supabase
+    if (result.topProjectName) {
+      const { error: saveError } = await supabaseAdmin
+        .from('analyses')
+        .insert({
+          user_id: session.user.id,
+          top_project_name: result.topProjectName,
+          completeness_score: result.completenessScore,
+          target_niche: result.targetNiche,
+          monetization_model: result.monetizationModel,
+          brutal_truth: result.brutalTruth,
+          launch_plan: result.weekendLaunchPlan
+        });
+      
+      if (saveError) console.error("Error saving analysis to Supabase:", saveError);
+    }
+
+    return result;
   } catch (error: any) {
-    console.error("OpenAI API Error:", error);
+    console.error("AI API Error:", error);
     
-    if (error.status === 401) {
-      throw new Error("Invalid API Key. Please check your OpenAI API key and try again.");
-    } else if (error.status === 429) {
-      throw new Error("API Quota Exceeded. Please check your OpenAI billing details or add credits.");
+    const isQuotaError = error.status === 429 || error.message?.includes('429');
+
+    if (isQuotaError) {
+      if (provider === 'google') {
+        throw new Error("Google API Error: Quota Exceeded. You are either hitting the free-tier limit (20 requests/day) or trying to use a Pro model without billing enabled in Google AI Studio. Switch to Gemini Flash or enable billing.");
+      } else if (provider === 'openai') {
+        throw new Error("OpenAI Error: Quota Exceeded. Your OpenAI account has run out of credits or you need to add a payment method at platform.openai.com.");
+      } else if (provider === 'anthropic') {
+        throw new Error("Anthropic Error: Quota Exceeded. Please check your console.anthropic.com billing dashboard to ensure you have active credits.");
+      }
+    }
+
+    if (error.status === 401 || error.name === 'AuthenticationError') {
+      throw new Error("Invalid API Key. Please check your key and try again.");
     } else {
-      throw new Error("Failed to analyze repositories. Please try again later.");
+      throw new Error(error.message || "Failed to analyze repositories. Please try again later.");
     }
   }
 }
