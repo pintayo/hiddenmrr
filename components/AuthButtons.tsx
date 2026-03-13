@@ -52,7 +52,7 @@ export function LoginButton() {
                  active:scale-[0.98]
                  transition-all duration-150"
     >
-      Scan My Private Repos
+      Scan My GitHub Graveyard
       <ArrowRight className="w-4 h-4 text-zinc-400" />
     </button>
   );

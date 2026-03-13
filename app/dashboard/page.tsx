@@ -1,7 +1,10 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+
 import { getUserProfile } from "@/app/actions";
+export const maxDuration = 60;
 import ClientDashboard from "./ClientDashboard";
 
 export default async function DashboardPage() {

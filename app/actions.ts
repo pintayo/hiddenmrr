@@ -1,5 +1,7 @@
 'use server';
 
+
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -20,12 +22,12 @@ export async function getUserProfile() {
   return data;
 }
 
-export async function fetchPrivateRepos() {
+export async function fetchUserRepos() {
   const session = await getServerSession(authOptions);
   if (!session?.accessToken) throw new Error("Unauthorized");
 
-  // Fetch repositories
-  const res = await fetch('https://api.github.com/user/repos?visibility=private&sort=updated&per_page=10', {
+  // Fetch repositories (up to 100, public and private)
+  const res = await fetch('https://api.github.com/user/repos?type=owner&sort=updated&per_page=100', {
     headers: {
       Authorization: `Bearer ${session.accessToken}`,
       Accept: 'application/vnd.github.v3+json'
@@ -67,51 +69,75 @@ export async function analyzeSelectedRepos(
       fetch(`https://api.github.com/repos/${fullName}/contents/package.json`, { headers }).catch(() => null)
     ]);
 
-    const repo = await repoReq.json().catch(() => ({}));
+    let repo: any = {};
+    try {
+      if (repoReq.ok) repo = await repoReq.json();
+    } catch (e) {
+      console.error(`Failed to parse repo data for ${fullName}`, e);
+    }
     
     // Decode base64
     let readme = "";
-    if (readmeReq?.ok) {
-        const body = await readmeReq.json();
-        if (body.content) readme = Buffer.from(body.content, 'base64').toString('utf-8');
+    try {
+      if (readmeReq?.ok) {
+          const body = await readmeReq.json();
+          if (body && body.content) readme = Buffer.from(body.content, 'base64').toString('utf-8');
+      }
+    } catch (e) {
+      console.error(`Failed to parse README for ${fullName}`, e);
     }
 
     let pkg = "";
-    if (pkgReq?.ok) {
-        const body = await pkgReq.json();
-        if (body.content) pkg = Buffer.from(body.content, 'base64').toString('utf-8');
+    try {
+      if (pkgReq?.ok) {
+          const body = await pkgReq.json();
+          if (body && body.content) pkg = Buffer.from(body.content, 'base64').toString('utf-8');
+      }
+    } catch (e) {
+      console.error(`Failed to parse package.json for ${fullName}`, e);
     }
 
     return {
       name: repo.name || fullName,
-      description: repo.description,
-      language: repo.language,
-      readme: readme.substring(0, 1500), // Truncate to save tokens
-      package_json: pkg.substring(0, 500)
+      description: repo.description || "",
+      language: repo.language || "Unknown",
+      readme: (readme || "No README provided").substring(0, 1500),
+      package_json: (pkg || "{}").substring(0, 500)
     };
   }));
 
-  const systemPrompt = `You are a ruthless, highly successful indie hacker and software appraiser. The user is feeding you README.md and package.json files from their abandoned side projects. Your job is to identify the single project with the fastest path to Monthly Recurring Revenue (MRR). Ignore technical debt; focus purely on market demand, B2B potential, and monetization.
+  const systemPrompt = `You are a ruthless, highly successful indie hacker and software appraiser. The user is feeding you README.md and package.json files from their abandoned side projects. Your job is to rank every single project based on market demand, B2B potential, and monetization.
 
-You MUST return a RAW JSON object. 
+You MUST return a RAW JSON object with the following structure:
+{
+  "winner": { 
+    "topProjectName": "String", 
+    "completenessScore": Number (1-100), 
+    "targetNiche": "String (Be ultra-specific)", 
+    "monetizationModel": "String", 
+    "brutalTruth": "String (1 sentence)", 
+    "weekendLaunchPlan": ["Step 1", "Step 2", "Step 3"] 
+  },
+  "runnerUps": [
+    { 
+      "projectName": "String", 
+      "score": Number, 
+      "niche": "String", 
+      "shortReason": "1 sentence on why it has potential but lost to the winner." 
+    }
+  ],
+  "leaderboard": [
+    { "projectName": "String", "score": Number }
+  ]
+}
+
 - NO markdown formatting.
 - NO backticks.
 - NO preamble or conversational text.
-- ONLY the JSON object.
-
-Structure:
-{
-"topProjectName": "String",
-"completenessScore": "Number 1-100",
-"targetNiche": "String (Be ultra-specific, e.g., 'B2B SEO Agencies')",
-"monetizationModel": "String (e.g., '$49 Lifetime Deal' or '$15/mo SaaS')",
-"brutalTruth": "String (1 sentence on why they abandoned it and why they need to get over it)",
-"weekendLaunchPlan": [
-"Step 1: Actionable technical step to finish the MVP",
-"Step 2: Exact marketing action (where to post, what to say)",
-"Step 3: How to acquire the first paying customer"
-]
-}`;
+- Rank EVERY repository passed to you.
+- Ensure the runnerUps array has the 2nd and 3rd best projects.
+- Include ALL remaining projects in the leaderboard array.
+`;
 
   const userPrompt = `Repositories Data:\n${JSON.stringify(reposData, null, 2)}`;
 
@@ -144,7 +170,7 @@ Structure:
     } 
     else if (provider === 'google') {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const googleModel = genAI.getGenerativeModel({ model: model });
+      const googleModel = genAI.getGenerativeModel({ model: model || 'gemini-2.5-flash' });
       const result = await googleModel.generateContent({
         contents: [{ role: 'user', parts: [{ text: systemPrompt + "\n\n" + userPrompt }] }],
         generationConfig: { responseMimeType: "application/json" }
@@ -163,17 +189,18 @@ Structure:
     }
 
     // Persist to Supabase
-    if (result.topProjectName) {
+    if (result.winner && result.winner.topProjectName) {
       const { error: saveError } = await supabaseAdmin
         .from('analyses')
         .insert({
           user_id: session.user.id,
-          top_project_name: result.topProjectName,
-          completeness_score: result.completenessScore,
-          target_niche: result.targetNiche,
-          monetization_model: result.monetizationModel,
-          brutal_truth: result.brutalTruth,
-          launch_plan: result.weekendLaunchPlan
+          top_project_name: result.winner.topProjectName,
+          completeness_score: result.winner.completenessScore,
+          target_niche: result.winner.targetNiche,
+          monetization_model: result.winner.monetizationModel,
+          brutal_truth: result.winner.brutalTruth,
+          launch_plan: result.winner.weekendLaunchPlan,
+          full_results: result
         });
       
       if (saveError) console.error("Error saving analysis to Supabase:", saveError);

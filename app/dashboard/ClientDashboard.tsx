@@ -6,7 +6,7 @@ import {
   Zap, Target, DollarSign, RotateCcw, AlertTriangle,
   ChevronDown, HelpCircle
 } from "lucide-react";
-import { fetchPrivateRepos, analyzeSelectedRepos } from "@/app/actions";
+import { fetchUserRepos, analyzeSelectedRepos } from "@/app/actions";
 import { CostEstimator } from "@/components/CostEstimator";
 
 // ── Score Ring (CSS only via SVG) ──────────────────────────
@@ -94,6 +94,21 @@ function Paywall({ userId }: { userId: string }) {
 }
 
 // ── Main Component ─────────────────────────────────────────
+const modelOptions: Record<string, { label: string; value: string; recommended?: boolean }[]> = {
+  openai: [
+    { label: "GPT-4o Mini", value: "gpt-4o-mini", recommended: true },
+    { label: "GPT-4.5 Turbo", value: "gpt-4.5-turbo" },
+  ],
+  anthropic: [
+    { label: "Claude 3.5 Haiku", value: "claude-3-5-haiku-latest", recommended: true },
+    { label: "Claude 3.7 Sonnet", value: "claude-3-7-sonnet-latest" },
+  ],
+  google: [
+    { label: "Gemini 2.5 Flash", value: "gemini-2.5-flash", recommended: true },
+    { label: "Gemini 3.1 Pro", value: "gemini-3.1-pro" },
+  ],
+};
+
 export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean; userId: string }) {
   const [apiKey, setApiKey] = useState("");
   const [provider, setProvider] = useState<'openai' | 'anthropic' | 'google'>("openai");
@@ -104,6 +119,59 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
   const [repos, setRepos] = useState<any[]>([]);
   const [results, setResults] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const [selectedRepos, setSelectedRepos] = useState<string[]>([]);
+  const [isFetchingRepos, setIsFetchingRepos] = useState(false);
+  const [step, setStep] = useState<'config' | 'selection' | 'results'>('config');
+
+  // ── Sync with LocalStorage ──────────────────────────
+  useEffect(() => {
+    const lastProvider = localStorage.getItem('hiddenmrr_last_provider') as any;
+    if (lastProvider && ['openai', 'anthropic', 'google'].includes(lastProvider)) {
+      setProvider(lastProvider);
+      
+      const savedKey = localStorage.getItem(`hiddenmrr_${lastProvider}_key`);
+      if (savedKey) setApiKey(savedKey);
+
+      const savedModel = localStorage.getItem(`hiddenmrr_${lastProvider}_model`);
+      if (savedModel) setModel(savedModel);
+      else setModel(modelOptions[lastProvider][0].value);
+    }
+  }, []);
+
+  const handleProviderChange = (p: 'openai' | 'anthropic' | 'google') => {
+    setProvider(p);
+    localStorage.setItem('hiddenmrr_last_provider', p);
+    
+    // Restore Key
+    const savedKey = localStorage.getItem(`hiddenmrr_${p}_key`) || "";
+    setApiKey(savedKey);
+
+    // Restore Model
+    const savedModel = localStorage.getItem(`hiddenmrr_${p}_model`);
+    if (savedModel) {
+      setModel(savedModel);
+    } else {
+      const defaultModel = modelOptions[p][0].value;
+      setModel(defaultModel);
+      localStorage.setItem(`hiddenmrr_${p}_model`, defaultModel);
+    }
+  };
+
+  const handleApiKeyChange = (val: string) => {
+    setApiKey(val);
+    localStorage.setItem(`hiddenmrr_${provider}_key`, val);
+  };
+
+  const handleModelChange = (val: string) => {
+    setModel(val);
+    localStorage.setItem(`hiddenmrr_${provider}_model`, val);
+  };
+
+  const handleClearKey = () => {
+    setApiKey("");
+    localStorage.removeItem(`hiddenmrr_${provider}_key`);
+  };
 
   const loadingPhrases = [
     "Fetching repository metadata...",
@@ -128,17 +196,41 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
 
   if (!hasPaid) return <Paywall userId={userId} />;
 
+  const handleFetchRepos = async () => {
+    if (!apiKey) { 
+      setError(`Please provide a ${provider === 'google' ? 'Gemini' : provider === 'anthropic' ? 'Anthropic' : 'OpenAI'} API Key.`); 
+      return; 
+    }
+    setError(null);
+    setIsFetchingRepos(true);
+    try {
+      const fetchedRepos = await fetchUserRepos();
+      setRepos(fetchedRepos || []);
+      // Pre-select top 20
+      setSelectedRepos(fetchedRepos.slice(0, 20).map((r: any) => r.full_name));
+      setStep('selection');
+    } catch (err: any) {
+      setError(err.message || "Failed to fetch repositories.");
+    } finally {
+      setIsFetchingRepos(false);
+    }
+  };
+
   const handleStartAnalysis = async () => {
-    if (!apiKey) { setError(`Please provide a ${provider === 'google' ? 'Gemini' : provider === 'anthropic' ? 'Anthropic' : 'OpenAI'} API Key.`); return; }
+    if (selectedRepos.length === 0) {
+      setError("Please select at least one repository to analyze.");
+      return;
+    }
+    if (selectedRepos.length > 20) {
+      setError("Maximum 20 repos per scan to ensure deep AI analysis.");
+      return;
+    }
     setError(null);
     setIsAnalyzing(true);
     try {
-      const fetchedRepos = await fetchPrivateRepos();
-      setRepos(fetchedRepos || []);
-      const topRepoNames = fetchedRepos.slice(0, 5).map((r: any) => r.full_name);
-      // Now passing provider and model
-      const analysisData = await analyzeSelectedRepos(topRepoNames, apiKey, provider, model);
+      const analysisData = await analyzeSelectedRepos(selectedRepos, apiKey, provider, model);
       setResults(analysisData);
+      setStep('results');
     } catch (err: any) {
       setError(err.message || "Failed to analyze repositories.");
     } finally {
@@ -146,27 +238,28 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
     }
   };
 
-  const modelOptions: Record<string, { label: string; value: string; recommended?: boolean }[]> = {
-    openai: [
-      { label: "GPT-4o Mini", value: "gpt-4o-mini", recommended: true },
-      { label: "GPT-4.5 Turbo", value: "gpt-4.5-turbo" },
-    ],
-    anthropic: [
-      { label: "Claude 3.5 Haiku", value: "claude-3-5-haiku-latest", recommended: true },
-      { label: "Claude 3.7 Sonnet", value: "claude-3-7-sonnet-latest" },
-    ],
-    google: [
-      { label: "Gemini 2.5 Flash", value: "gemini-2.5-flash", recommended: true },
-      { label: "Gemini 3.1 Pro", value: "gemini-3.1-pro" },
-    ],
+  const toggleRepo = (fullName: string) => {
+    setSelectedRepos(prev => {
+      if (prev.includes(fullName)) {
+        setError(null);
+        return prev.filter(r => r !== fullName);
+      }
+      if (prev.length >= 20) {
+        setError("Maximum 20 repos per scan to ensure deep AI analysis.");
+        return prev;
+      }
+      setError(null);
+      return [...prev, fullName];
+    });
   };
+
 
   return (
     <div className="space-y-12 pb-20">
 
-      {/* ── BYOK Input ────────────────────────────────── */}
-      {!results && (
-        <div className="max-w-xl mx-auto rounded-3xl border border-white/[0.08] bg-zinc-950 p-8 sm:p-10 shadow-3xl space-y-8">
+      {/* ── STEP 1: CONFIG ────────────────────────────────── */}
+      {step === 'config' && (
+        <div className="max-w-xl mx-auto rounded-3xl border border-white/[0.08] bg-zinc-950 p-8 sm:p-10 shadow-3xl space-y-8 animate-fade-in">
           
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-4">
@@ -193,10 +286,7 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
             {(['openai', 'anthropic', 'google'] as const).map((p) => (
               <button
                 key={p}
-                onClick={() => {
-                  setProvider(p);
-                  setModel(modelOptions[p][0].value);
-                }}
+                onClick={() => handleProviderChange(p)}
                 className={`px-4 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider border transition-all
                   ${provider === p 
                     ? "bg-white/10 border-white/20 text-white shadow-lg" 
@@ -207,61 +297,155 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
             ))}
           </div>
 
-          <div className="space-y-4">
-            <div className="relative">
-              <select
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                className="w-full appearance-none bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3.5
-                           focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5
-                           transition-all text-sm text-zinc-300 shadow-inner cursor-pointer"
-              >
-                {modelOptions[provider].map((opt) => (
-                  <option key={opt.value} value={opt.value} className="bg-zinc-950">
-                    {opt.label} {opt.recommended ? "— Recommended (Fast & Cheap)" : ""}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
-                {modelOptions[provider].find(m => m.value === model)?.recommended && (
-                    <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold uppercase tracking-widest">
-                        Recommended
-                    </span>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600">
+                  API Configuration
+                </label>
+                {apiKey && (
+                  <button 
+                    onClick={handleClearKey}
+                    className="text-[10px] font-black uppercase tracking-[0.2em] text-red-500/60 hover:text-red-400 transition-colors"
+                  >
+                    Clear Saved Key
+                  </button>
                 )}
-                <ChevronDown className="w-4 h-4 text-zinc-600" />
               </div>
-            </div>
+              <div className="relative">
+                <select
+                  value={model}
+                  onChange={(e) => handleModelChange(e.target.value)}
+                  className="w-full appearance-none bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3.5
+                             focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5
+                             transition-all text-sm text-zinc-300 shadow-inner cursor-pointer"
+                >
+                  {modelOptions[provider].map((opt) => (
+                    <option key={opt.value} value={opt.value} className="bg-zinc-950">
+                      {opt.label} {opt.recommended ? "— Recommended (Fast & Cheap)" : ""}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+                  {modelOptions[provider].find(m => m.value === model)?.recommended && (
+                      <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold uppercase tracking-widest">
+                          Recommended
+                      </span>
+                  )}
+                  <ChevronDown className="w-4 h-4 text-zinc-600" />
+                </div>
+              </div>
 
-            <input
-              id="api-key-input"
-              type="password"
-              placeholder={provider === 'google' ? 'Enter Gemini API Key' : provider === 'anthropic' ? 'Enter Anthropic Key (sk-ant-...)' : 'Enter OpenAI Key (sk-...)'}
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              className="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3.5
-                         focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5
-                         transition-all font-mono text-sm text-zinc-300 placeholder:text-zinc-800 shadow-inner"
-            />
+              <input
+                id="api-key-input"
+                type="password"
+                placeholder={provider === 'google' ? 'Enter Gemini API Key' : provider === 'anthropic' ? 'Enter Anthropic Key (sk-ant-...)' : 'Enter OpenAI Key (sk-...)'}
+                value={apiKey}
+                onChange={(e) => handleApiKeyChange(e.target.value)}
+                className="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3.5
+                           focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5
+                           transition-all font-mono text-base md:text-sm text-zinc-300 placeholder:text-zinc-800 shadow-inner"
+              />
             {error && (
               <p className="text-red-400 text-xs font-semibold flex items-center gap-2 px-1">
                 <Zap className="w-3.5 h-3.5 shrink-0" />{error}
               </p>
             )}
             <button
-              id="analyze-repos-btn"
-              onClick={handleStartAnalysis}
-              disabled={isAnalyzing || !apiKey}
+              onClick={handleFetchRepos}
+              disabled={isFetchingRepos || !apiKey}
               className="w-full rounded-xl px-4 py-4 text-[15px] font-bold text-white flex items-center justify-center gap-3
                          bg-zinc-900 border border-white/[0.1]
                          hover:bg-zinc-800 hover:border-white/20
-                         disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-zinc-900
+                         disabled:opacity-20 disabled:cursor-not-allowed
                          transition-all duration-300 shadow-2xl"
             >
-              {isAnalyzing
-                ? <><Loader2 className="w-5 h-5 animate-spin text-primary" /> <span className="animate-pulse">{loadingPhrases[loadingStep]}</span></>
-                : <><Sparkles className="w-5 h-5 text-primary" /> Analyze My Repositories</>
+              {isFetchingRepos
+                ? <><Loader2 className="w-5 h-5 animate-spin text-primary" /> <span className="animate-pulse">Accessing GitHub...</span></>
+                : <><Sparkles className="w-5 h-5 text-primary" /> Fetch My Repositories</>
               }
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 2: SELECTION GATE ────────────────────────── */}
+      {step === 'selection' && (
+        <div className="max-w-2xl mx-auto rounded-3xl border border-white/[0.08] bg-zinc-950 p-8 sm:p-10 shadow-3xl space-y-8 animate-fade-in">
+          <div className="flex items-center justify-between">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 shrink-0 shadow-inner">
+                <Code className="w-5 h-5 text-zinc-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-white tracking-tight">Step 2: Selection Gate</h2>
+                <p className="text-sm text-zinc-500 mt-1">Select up to 20 repos for deep analysis.</p>
+              </div>
+            </div>
+            <div className="px-3 py-1 rounded-lg bg-white/[0.02] border border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-500">
+               {selectedRepos.length} / 20 Selected
+            </div>
+          </div>
+
+          <div className="max-h-[400px] overflow-y-auto pr-2 space-y-2 custom-scrollbar">
+            {repos.map((repo) => (
+              <div 
+                key={repo.full_name}
+                onClick={() => toggleRepo(repo.full_name)}
+                className={`p-4 rounded-xl border cursor-pointer transition-all flex items-center justify-between group
+                  ${selectedRepos.includes(repo.full_name) 
+                    ? "bg-white/[0.05] border-white/20" 
+                    : "bg-white/[0.01] border-white/[0.03] hover:border-white/10"}`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all
+                    ${selectedRepos.includes(repo.full_name) 
+                      ? "bg-primary border-primary text-black" 
+                      : "bg-black border-white/10 group-hover:border-white/20"}`}>
+                    {selectedRepos.includes(repo.full_name) && <CheckCircle className="w-4 h-4" />}
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className={`text-sm font-bold tracking-tight transition-colors
+                      ${selectedRepos.includes(repo.full_name) ? "text-white" : "text-zinc-400"}`}>
+                      {repo.name}
+                    </p>
+                    <p className="text-[10px] text-zinc-600 uppercase font-bold tracking-widest">{repo.language || 'Markdown'}</p>
+                  </div>
+                </div>
+                {selectedRepos.includes(repo.full_name) && (
+                   <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Active</span>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-4">
+            {error && (
+              <p className="text-red-400 text-xs font-semibold flex items-center gap-2 px-1">
+                <Zap className="w-3.5 h-3.5 shrink-0" />{error}
+              </p>
+            )}
+            <div className="flex gap-4">
+              <button
+                onClick={() => setStep('config')}
+                className="flex-1 rounded-xl px-4 py-4 text-xs font-bold text-zinc-500 uppercase tracking-widest
+                           bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all"
+              >
+                Back
+              </button>
+              <button
+                onClick={handleStartAnalysis}
+                disabled={isAnalyzing || selectedRepos.length === 0}
+                className="flex-[2] rounded-xl px-4 py-4 text-[15px] font-bold text-white flex items-center justify-center gap-3
+                           bg-white text-black hover:bg-zinc-200
+                           disabled:opacity-20 disabled:cursor-not-allowed
+                           transition-all duration-300 shadow-2xl"
+              >
+                {isAnalyzing
+                  ? <><Loader2 className="w-5 h-5 animate-spin text-black" /> <span className="animate-pulse">{loadingPhrases[loadingStep]}</span></>
+                  : <><Sparkles className="w-5 h-5 text-black" /> Run AI Appraisal</>
+                }
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -271,21 +455,21 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
         onClose={() => setShowCostEstimator(false)} 
       />
 
-      {/* ── Results Bento Grid ──────── */}
-      {results && results.topProjectName && (
-        <div className="animate-fade-in-up max-w-5xl mx-auto space-y-6 px-4 sm:px-0">
+      {/* ── STEP 3: RESULTS ─────────────────────────────── */}
+      {step === 'results' && results && results.winner && (
+        <div className="animate-fade-in-up max-w-5xl mx-auto space-y-16 px-4 sm:px-0">
 
           {/* Header */}
-          <div className="text-center mb-10">
+          <div className="text-center">
             <h2 className="text-3xl sm:text-4xl font-black tracking-tighter text-white mb-2">
               The Verdict
             </h2>
             <p className="text-sm text-zinc-500 font-medium uppercase tracking-[0.2em]">
-              Analyzed {repos.length} Repositories · 1 Winner Found
+              Analyzed {selectedRepos.length} Repositories · Winner & Runner-Ups Found
             </p>
           </div>
 
-          {/* ── Bento Grid ───────────────────── */}
+          {/* ── WINNER BENTO GRID ────────────────────────── */}
           <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
 
             {/* Card 1: Niche/Tags (col-span-4) */}
@@ -297,31 +481,31 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
                   </div>
                   <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-zinc-600">Primary Candidate</span>
                 </div>
-                <h3 className="text-4xl sm:text-5xl font-black tracking-tighter text-white mb-4">{results.topProjectName}</h3>
+                <h3 className="text-4xl sm:text-5xl font-black tracking-tighter text-white mb-4">{results.winner.topProjectName}</h3>
                 <p className="text-zinc-500 text-lg font-medium">Fastest path to revenue in your current portfolio.</p>
               </div>
               <div className="flex flex-wrap gap-3 mt-8">
                 <span className="inline-flex items-center gap-2 text-xs font-bold
                                  rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2 text-zinc-400">
                   <Target className="w-3.5 h-3.5 text-primary" />
-                  {results.targetNiche}
+                  {results.winner.targetNiche}
                 </span>
                 <span className="inline-flex items-center gap-2 text-xs font-bold
                                  rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2 text-zinc-400">
                   <DollarSign className="w-3.5 h-3.5 text-emerald-500" />
-                  {results.monetizationModel}
+                  {results.winner.monetizationModel}
                 </span>
               </div>
             </div>
 
             {/* Card 2: Massive Completeness Score (col-span-2) */}
             <div className="md:col-span-2 rounded-[2rem] border border-white/[0.08] bg-zinc-950 p-8 flex flex-col items-center justify-center gap-4 text-center">
-              <ScoreRing score={Number(results.completenessScore)} />
+              <ScoreRing score={Number(results.winner.completenessScore)} />
               <div className="space-y-1">
                 <p className="text-white font-bold text-lg tracking-tight">
-                  {Number(results.completenessScore) >= 70
+                  {Number(results.winner.completenessScore) >= 70
                     ? "Production Ready"
-                    : Number(results.completenessScore) >= 40
+                    : Number(results.winner.completenessScore) >= 40
                     ? "Strong Foundation"
                     : "Architectural POC"}
                 </p>
@@ -339,7 +523,7 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
                 The Brutal Truth
               </h4>
               <p className="text-xl sm:text-2xl text-zinc-300 leading-tight font-medium italic relative z-10 max-w-3xl">
-                &ldquo;{results.brutalTruth}&rdquo;
+                &ldquo;{results.winner.brutalTruth}&rdquo;
               </p>
             </div>
 
@@ -356,10 +540,9 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-                {/* Horizontal line for desktop */}
                 <div className="hidden md:block absolute top-[18px] left-8 right-8 h-px bg-white/[0.05]" />
 
-                {results.weekendLaunchPlan.map((step: string, i: number) => {
+                {results.winner.weekendLaunchPlan.map((step: string, i: number) => {
                   const splitIdx = step.indexOf(':');
                   const prefix  = splitIdx > -1 ? step.substring(0, splitIdx) : `Phase ${i + 1}`;
                   const content = splitIdx > -1 ? step.substring(splitIdx + 1).trim() : step;
@@ -382,10 +565,77 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
             </div>
           </div>
 
+          {/* ── RUNNER-UPS ─────────────────────────────── */}
+          {results.runnerUps && results.runnerUps.length > 0 && (
+            <div className="space-y-8 animate-fade-in-up">
+              <div className="flex items-center gap-4 px-2">
+                <h4 className="text-xl font-bold text-white tracking-tighter uppercase tracking-[0.1em]">High-Potential Runner-Ups</h4>
+                <div className="h-px flex-1 bg-white/[0.05]" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 {results.runnerUps.map((runner: any, i: number) => (
+                    <div key={i} className="rounded-[2rem] border border-white/[0.08] bg-zinc-950 p-6 space-y-4 hover:border-white/20 transition-colors group">
+                       <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest bg-white/[0.03] px-2 py-1 rounded border border-white/5">0{i + 2} Candidate</span>
+                          <span className="text-xs font-black text-primary uppercase tracking-[0.2em]">{runner.score}% Match</span>
+                       </div>
+                       <h5 className="text-2xl font-black text-white tracking-tight group-hover:text-primary transition-colors">{runner.projectName}</h5>
+                       <div className="flex items-center gap-2">
+                          <Target className="w-3 h-3 text-zinc-500" />
+                          <span className="text-[11px] font-bold text-zinc-500">{runner.niche}</span>
+                       </div>
+                       <p className="text-sm text-zinc-400 leading-relaxed italic border-l-2 border-primary/20 pl-4">
+                          &ldquo;{runner.shortReason}&rdquo;
+                       </p>
+                    </div>
+                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── GRAVEYARD LEADERBOARD ──────────────────── */}
+          {results.leaderboard && results.leaderboard.length > 0 && (
+            <div className="space-y-6 animate-fade-in-up">
+              <div className="flex items-center gap-4 px-2">
+                <h4 className="text-xl font-bold text-white tracking-tighter uppercase tracking-[0.1em]">The Graveyard Leaderboard</h4>
+                <div className="h-px flex-1 bg-white/[0.05]" />
+              </div>
+              <div className="rounded-[1.5rem] overflow-hidden border border-white/[0.08] bg-zinc-950">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead className="bg-white/[0.02] border-b border-white/[0.08]">
+                      <tr>
+                        <th className="px-6 py-4 text-[10px] font-black text-zinc-600 uppercase tracking-widest">Project Name</th>
+                        <th className="px-6 py-4 text-[10px] font-black text-zinc-600 uppercase tracking-widest text-right">Potential Score</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/[0.04]">
+                      {results.leaderboard.map((item: any, i: number) => {
+                        const scoreColor = item.score >= 50 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                                         : item.score >= 30 ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                         : 'bg-red-500/10 text-red-400 border-red-500/20';
+                        return (
+                          <tr key={i} className="hover:bg-white/[0.01] transition-colors group">
+                            <td className="px-6 py-4 font-bold text-zinc-400 group-hover:text-white transition-colors">{item.projectName}</td>
+                            <td className="px-6 py-4 text-right">
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black border tracking-widest ${scoreColor}`}>
+                                {item.score}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Reset */}
-          <div className="flex justify-center pt-10">
+          <div className="flex justify-center pt-6">
             <button
-              onClick={() => { setResults(null); setApiKey(""); }}
+              onClick={() => { setStep('config'); setResults(null); setApiKey(""); }}
               className="group flex items-center gap-3 text-zinc-600 hover:text-zinc-200 text-xs font-bold uppercase tracking-[0.2em]
                          px-8 py-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all"
             >
