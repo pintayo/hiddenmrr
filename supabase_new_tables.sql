@@ -8,6 +8,7 @@ create table public.analyses (
   monetization_model text,
   brutal_truth text,
   launch_plan jsonb, -- Storing the array as JSONB
+  full_results jsonb, -- Complete AI response for historical reference
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 

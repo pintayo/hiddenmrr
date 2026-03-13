@@ -30,7 +30,7 @@ export const authOptions: NextAuthOptions = {
         );
 
       if (error) {
-        console.error("Error syncing profile to Supabase:", error);
+        console.error("Error syncing profile to Supabase:", error.code, error.message);
       }
 
       return true;

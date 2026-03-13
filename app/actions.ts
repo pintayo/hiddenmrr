@@ -50,14 +50,16 @@ export async function fetchUserRepos() {
 }
 
 export async function analyzeSelectedRepos(
-  repoFullNames: string[], 
-  apiKey: string, 
+  repoFullNames: string[],
+  apiKey: string,
   provider: 'openai' | 'anthropic' | 'google' = 'openai',
   model: string = 'gpt-4o-mini'
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.accessToken) throw new Error("Unauthorized");
   if (!apiKey) throw new Error("No API key provided");
+  if (!repoFullNames || repoFullNames.length === 0) throw new Error("No repositories selected for analysis.");
+  if (repoFullNames.length > 20) throw new Error("Maximum 20 repositories per analysis.");
 
   const reposData = await Promise.all(repoFullNames.map(async (fullName) => {
     // Fetch critical files: README and package.json/requirements.txt
@@ -72,10 +74,10 @@ export async function analyzeSelectedRepos(
     let repo: any = {};
     try {
       if (repoReq.ok) repo = await repoReq.json();
-    } catch (e) {
-      console.error(`Failed to parse repo data for ${fullName}`, e);
+    } catch {
+      // Non-critical: repo metadata unavailable, continue with defaults
     }
-    
+
     // Decode base64
     let readme = "";
     try {
@@ -83,8 +85,8 @@ export async function analyzeSelectedRepos(
           const body = await readmeReq.json();
           if (body && body.content) readme = Buffer.from(body.content, 'base64').toString('utf-8');
       }
-    } catch (e) {
-      console.error(`Failed to parse README for ${fullName}`, e);
+    } catch {
+      // Non-critical: README unavailable
     }
 
     let pkg = "";
@@ -93,8 +95,8 @@ export async function analyzeSelectedRepos(
           const body = await pkgReq.json();
           if (body && body.content) pkg = Buffer.from(body.content, 'base64').toString('utf-8');
       }
-    } catch (e) {
-      console.error(`Failed to parse package.json for ${fullName}`, e);
+    } catch {
+      // Non-critical: package.json unavailable
     }
 
     return {
@@ -160,12 +162,16 @@ You MUST return a RAW JSON object with the following structure:
       const anthropic = new Anthropic({ apiKey });
       const message = await anthropic.messages.create({
         model: model,
-        max_tokens: 1000,
+        max_tokens: 4096,
         system: systemPrompt,
         messages: [{ role: "user", content: userPrompt }],
       });
-      if (message.content[0].type === 'text') {
-        rawContent = message.content[0].text;
+      const firstBlock = message.content?.[0];
+      if (firstBlock && firstBlock.type === 'text') {
+        rawContent = firstBlock.text;
+      }
+      if (!rawContent) {
+        throw new Error("Anthropic returned an empty response. Please try again.");
       }
     } 
     else if (provider === 'google') {
@@ -183,10 +189,21 @@ You MUST return a RAW JSON object with the following structure:
     try {
       const cleanJson = rawContent.replace(/```json\n?|\n?```/g, '').trim();
       result = JSON.parse(cleanJson);
-    } catch (e) {
-      console.error("Failed to parse AI response:", rawContent);
+    } catch {
       throw new Error("The AI returned an invalid response format. Please try again.");
     }
+
+    // Normalize: ensure arrays exist even if the LLM omitted them
+    if (result.winner) {
+      if (!Array.isArray(result.winner.weekendLaunchPlan)) {
+        result.winner.weekendLaunchPlan = [];
+      }
+      if (typeof result.winner.completenessScore === 'string') {
+        result.winner.completenessScore = parseInt(result.winner.completenessScore, 10) || 0;
+      }
+    }
+    if (!Array.isArray(result.runnerUps)) result.runnerUps = [];
+    if (!Array.isArray(result.leaderboard)) result.leaderboard = [];
 
     // Persist to Supabase
     if (result.winner && result.winner.topProjectName) {
@@ -195,26 +212,29 @@ You MUST return a RAW JSON object with the following structure:
         .insert({
           user_id: session.user.id,
           top_project_name: result.winner.topProjectName,
-          completeness_score: result.winner.completenessScore,
-          target_niche: result.winner.targetNiche,
-          monetization_model: result.winner.monetizationModel,
-          brutal_truth: result.winner.brutalTruth,
+          completeness_score: Number(result.winner.completenessScore) || 0,
+          target_niche: result.winner.targetNiche || '',
+          monetization_model: result.winner.monetizationModel || '',
+          brutal_truth: result.winner.brutalTruth || '',
           launch_plan: result.winner.weekendLaunchPlan,
           full_results: result
         });
-      
-      if (saveError) console.error("Error saving analysis to Supabase:", saveError);
+
+      if (saveError) {
+        // Log only the error code/message, never the full result payload
+        console.error("Supabase save error:", saveError.code, saveError.message);
+      }
     }
 
     return result;
   } catch (error: any) {
-    console.error("AI API Error:", error);
     
-    const isQuotaError = error.status === 429 || error.message?.includes('429');
+    const status = error.status || error.statusCode;
+    const isQuotaError = status === 429 || error.message?.includes('429');
 
     if (isQuotaError) {
       if (provider === 'google') {
-        throw new Error("Google API Error: Quota Exceeded. You are either hitting the free-tier limit (20 requests/day) or trying to use a Pro model without billing enabled in Google AI Studio. Switch to Gemini Flash or enable billing.");
+        throw new Error("Google API Error: Quota Exceeded. You are either hitting the free-tier limit or trying to use a Pro model without billing enabled in Google AI Studio. Switch to Gemini Flash or enable billing.");
       } else if (provider === 'openai') {
         throw new Error("OpenAI Error: Quota Exceeded. Your OpenAI account has run out of credits or you need to add a payment method at platform.openai.com.");
       } else if (provider === 'anthropic') {
@@ -222,10 +242,19 @@ You MUST return a RAW JSON object with the following structure:
       }
     }
 
-    if (error.status === 401 || error.name === 'AuthenticationError') {
+    if (status === 401 || error.name === 'AuthenticationError') {
       throw new Error("Invalid API Key. Please check your key and try again.");
-    } else {
-      throw new Error(error.message || "Failed to analyze repositories. Please try again later.");
     }
+
+    if (status === 404 || error.message?.includes('not found') || error.message?.includes('does not exist')) {
+      throw new Error(`Model "${model}" not found for ${provider}. Please select a different model.`);
+    }
+
+    // Re-throw user-facing errors (from inner try blocks) as-is
+    if (error.message && !error.status) {
+      throw error;
+    }
+
+    throw new Error("Failed to analyze repositories. Please try again later.");
   }
 }

@@ -269,7 +269,7 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
               <div>
                 <h2 className="text-lg font-bold text-white tracking-tight">Step 1: AI Provider</h2>
                 <p className="text-sm text-zinc-500 mt-1 leading-relaxed">
-                  Choose your brain. Your key is <strong className="text-zinc-300">never stored</strong>.
+                  Choose your brain. Your key is <strong className="text-zinc-300">never sent to our servers</strong>.
                 </p>
               </div>
             </div>
@@ -317,7 +317,7 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
                   onChange={(e) => handleModelChange(e.target.value)}
                   className="w-full appearance-none bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3.5
                              focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5
-                             transition-all text-sm text-zinc-300 shadow-inner cursor-pointer"
+                             transition-all text-base md:text-sm text-zinc-300 shadow-inner cursor-pointer"
                 >
                   {modelOptions[provider].map((opt) => (
                     <option key={opt.value} value={opt.value} className="bg-zinc-950">
@@ -435,7 +435,7 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
               <button
                 onClick={handleStartAnalysis}
                 disabled={isAnalyzing || selectedRepos.length === 0}
-                className="flex-[2] rounded-xl px-4 py-4 text-[15px] font-bold text-white flex items-center justify-center gap-3
+                className="flex-[2] rounded-xl px-4 py-4 text-[15px] font-bold flex items-center justify-center gap-3
                            bg-white text-black hover:bg-zinc-200
                            disabled:opacity-20 disabled:cursor-not-allowed
                            transition-all duration-300 shadow-2xl"
@@ -500,7 +500,7 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
 
             {/* Card 2: Massive Completeness Score (col-span-2) */}
             <div className="md:col-span-2 rounded-[2rem] border border-white/[0.08] bg-zinc-950 p-8 flex flex-col items-center justify-center gap-4 text-center">
-              <ScoreRing score={Number(results.winner.completenessScore)} />
+              <ScoreRing score={Number(results.winner.completenessScore) || 0} />
               <div className="space-y-1">
                 <p className="text-white font-bold text-lg tracking-tight">
                   {Number(results.winner.completenessScore) >= 70
@@ -542,7 +542,7 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
                 <div className="hidden md:block absolute top-[18px] left-8 right-8 h-px bg-white/[0.05]" />
 
-                {results.winner.weekendLaunchPlan.map((step: string, i: number) => {
+                {(Array.isArray(results.winner.weekendLaunchPlan) ? results.winner.weekendLaunchPlan : []).map((step: string, i: number) => {
                   const splitIdx = step.indexOf(':');
                   const prefix  = splitIdx > -1 ? step.substring(0, splitIdx) : `Phase ${i + 1}`;
                   const content = splitIdx > -1 ? step.substring(splitIdx + 1).trim() : step;
@@ -566,7 +566,7 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
           </div>
 
           {/* ── RUNNER-UPS ─────────────────────────────── */}
-          {results.runnerUps && results.runnerUps.length > 0 && (
+          {Array.isArray(results.runnerUps) && results.runnerUps.length > 0 && (
             <div className="space-y-8 animate-fade-in-up">
               <div className="flex items-center gap-4 px-2">
                 <h4 className="text-xl font-bold text-white tracking-tighter uppercase tracking-[0.1em]">High-Potential Runner-Ups</h4>
@@ -594,7 +594,7 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
           )}
 
           {/* ── GRAVEYARD LEADERBOARD ──────────────────── */}
-          {results.leaderboard && results.leaderboard.length > 0 && (
+          {Array.isArray(results.leaderboard) && results.leaderboard.length > 0 && (
             <div className="space-y-6 animate-fade-in-up">
               <div className="flex items-center gap-4 px-2">
                 <h4 className="text-xl font-bold text-white tracking-tighter uppercase tracking-[0.1em]">The Graveyard Leaderboard</h4>
