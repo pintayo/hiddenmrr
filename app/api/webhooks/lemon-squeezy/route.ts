@@ -21,37 +21,16 @@ export async function POST(req: Request) {
 
     if (eventName === 'order_created') {
       const orderId = data.data.id;
-      // It's expected that you pass the user's GitHub ID in Lemon Squeezy custom data
       const userId = data.meta.custom_data?.user_id;
-      const productName = data.data.attributes?.first_order_item?.product_name || '';
-      const isSingleScan = productName.toLowerCase().includes('single') || data.meta.custom_data?.plan === 'single';
 
       if (userId) {
-        if (isSingleScan) {
-          // $9 single scan — increment available scans
-          const { data: profile } = await supabaseAdmin
-            .from('profiles')
-            .select('single_scans_purchased')
-            .eq('id', String(userId))
-            .single();
-
-          await supabaseAdmin
-            .from('profiles')
-            .update({
-              single_scans_purchased: (profile?.single_scans_purchased || 0) + 1,
-              lemon_squeezy_order_id: orderId,
-            })
-            .eq('id', String(userId));
-        } else {
-          // $29 pro — unlimited access
-          await supabaseAdmin
-            .from('profiles')
-            .update({
-              has_paid: true,
-              lemon_squeezy_order_id: orderId,
-            })
-            .eq('id', String(userId));
-        }
+        await supabaseAdmin
+          .from('profiles')
+          .update({
+            has_paid: true,
+            lemon_squeezy_order_id: orderId,
+          })
+          .eq('id', String(userId));
       }
     }
 

@@ -75,21 +75,19 @@ export async function analyzeSelectedRepos(
   // SERVER-SIDE PAYWALL CHECK with free tier support
   const { data: profile } = await supabaseAdmin
     .from('profiles')
-    .select('has_paid, free_scans_used, single_scans_purchased')
+    .select('has_paid, free_scans_used')
     .eq('id', session.user.id)
     .single();
 
   const freeScansUsed = profile?.free_scans_used || 0;
-  const singleScans = profile?.single_scans_purchased || 0;
   const FREE_SCAN_LIMIT = 1;
   const isFreeEligible = !profile?.has_paid && repoFullNames.length === 1 && freeScansUsed < FREE_SCAN_LIMIT;
-  const isSingleScanEligible = !profile?.has_paid && repoFullNames.length === 1 && singleScans > freeScansUsed;
 
-  if (!profile?.has_paid && !isFreeEligible && !isSingleScanEligible) {
+  if (!profile?.has_paid && !isFreeEligible) {
     if (repoFullNames.length > 1) {
-      throw new Error("Multi-repo scan requires the Pro plan ($19). Or grab a single deep scan for $9.");
+      throw new Error("Multi-repo scan requires the Pro plan (€19 one-time). Unlock unlimited scans forever.");
     }
-    throw new Error("You've used your free scan. Grab another deep scan for $9, or go Pro for $19 (unlimited).");
+    throw new Error("You've used your free scan. Go Pro for €19 (unlimited scans, up to 20 repos, lifetime access).");
   }
 
   // For free scans, use the server-side managed Gemini API key (no BYOK friction)

@@ -39,10 +39,8 @@ function ScoreRing({ score }: { score: number }) {
 
 // ── Paywall ────────────────────────────────────────────────
 function Paywall({ userId }: { userId: string }) {
-  const proCheckoutUrl = process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_URL;
-  const singleCheckoutUrl = process.env.NEXT_PUBLIC_LEMON_SQUEEZY_SINGLE_SCAN_URL;
-  const isProAvailable = !!proCheckoutUrl && proCheckoutUrl !== "undefined";
-  const isSingleAvailable = !!singleCheckoutUrl && singleCheckoutUrl !== "undefined";
+  const checkoutUrl = process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_URL;
+  const isAvailable = !!checkoutUrl && checkoutUrl !== "undefined";
 
   return (
     <div className="relative rounded-[2.5rem] overflow-hidden border border-white/[0.08] bg-zinc-950">
@@ -61,61 +59,44 @@ function Paywall({ userId }: { userId: string }) {
 
         <h2 className="text-3xl sm:text-4xl font-bold tracking-tighter text-white mb-4">You Saw What&apos;s Possible</h2>
         <p className="text-zinc-400 max-w-md mb-10 text-base sm:text-lg leading-relaxed">
-          You saw real potential in your repos. Now go deeper — scan more, compare across your entire portfolio, and find your highest-ROI project.
+          Your free scan showed real potential. Unlock unlimited scans to compare your entire portfolio and find the highest-ROI project.
         </p>
 
-        {/* Two-tier pricing */}
-        <div className="flex flex-col sm:flex-row items-stretch gap-4 w-full max-w-lg">
-          {/* $9 Single Scan */}
-          <div className="flex-1 rounded-2xl border border-white/10 bg-white/[0.02] p-6 space-y-4 text-left">
-            <div className="flex items-end gap-2">
-              <span className="text-3xl font-black text-white">$9</span>
-              <span className="text-zinc-600 text-xs font-bold pb-1">one scan</span>
+        <div className="flex flex-col items-center gap-4 w-full max-w-sm">
+          {isAvailable ? (
+            <a
+              id="paywall-checkout-btn"
+              href={`${checkoutUrl}?checkout[custom][user_id]=${userId}`}
+              className="w-full inline-flex items-center justify-center gap-3 rounded-2xl px-8 py-5 text-[15px] font-bold text-black
+                         bg-white hover:bg-zinc-200 hover:-translate-y-1
+                         active:translate-y-0 shadow-2xl transition-all duration-300 group"
+            >
+              <Sparkles className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              Go Pro — €19 Lifetime
+            </a>
+          ) : (
+            <button
+              disabled
+              className="w-full inline-flex items-center justify-center gap-3 rounded-2xl px-8 py-5 text-[15px] font-bold text-zinc-600
+                         bg-zinc-900/50 border border-white/5 cursor-not-allowed"
+            >
+              <AlertTriangle className="w-5 h-5" />
+              Checkout Currently Unavailable
+            </button>
+          )}
+          <div className="space-y-2">
+            <div className="flex items-center justify-center gap-3 text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
+              <span>Unlimited scans</span>
+              <span className="text-zinc-800">·</span>
+              <span>Up to 20 repos</span>
+              <span className="text-zinc-800">·</span>
+              <span>Lifetime access</span>
             </div>
-            <p className="text-xs text-zinc-500">1 more deep scan with full Market Readiness Plan.</p>
-            {isSingleAvailable ? (
-              <a
-                href={`${singleCheckoutUrl}?checkout[custom][user_id]=${userId}`}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-white
-                           bg-white/[0.05] border border-white/10 hover:bg-white/[0.08] hover:border-white/20
-                           transition-all duration-300"
-              >
-                <Zap className="w-4 h-4 text-primary" /> Quick Scan
-              </a>
-            ) : (
-              <button disabled className="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-zinc-600 bg-zinc-900/50 border border-white/5 cursor-not-allowed">
-                <AlertTriangle className="w-4 h-4" /> Coming Soon
-              </button>
-            )}
-          </div>
-
-          {/* $19 Unlimited */}
-          <div className="flex-1 rounded-2xl border border-primary/25 bg-primary/5 p-6 space-y-4 text-left relative">
-            <div className="absolute -top-3 right-4 px-3 py-1 rounded-full bg-primary text-black text-[9px] font-black uppercase tracking-widest">Launch Price</div>
-            <div className="flex items-end gap-2">
-              <span className="text-3xl font-black text-white">$19</span>
-              <span className="text-zinc-600 text-xs font-bold pb-1">lifetime</span>
-              <span className="text-zinc-700 text-xs line-through pb-1">$29</span>
-            </div>
-            <p className="text-xs text-zinc-400">Unlimited scans, up to 20 repos at once, forever.</p>
-            {isProAvailable ? (
-              <a
-                id="paywall-checkout-btn"
-                href={`${proCheckoutUrl}?checkout[custom][user_id]=${userId}`}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-black
-                           bg-white hover:bg-zinc-200
-                           transition-all duration-300 shadow-lg"
-              >
-                <Sparkles className="w-4 h-4" /> Go Pro
-              </a>
-            ) : (
-              <button disabled className="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-zinc-600 bg-zinc-900/50 border border-white/5 cursor-not-allowed">
-                <AlertTriangle className="w-4 h-4" /> Coming Soon
-              </button>
-            )}
+            <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold">
+              Launch price <span className="line-through text-zinc-700">€29</span> → <span className="text-primary">€19</span> · Use <span className="text-primary font-mono">FIRST10</span> for 50% off
+            </p>
           </div>
         </div>
-        <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold mt-6">Launch price · Secured by Lemon Squeezy</p>
       </div>
     </div>
   );
@@ -969,36 +950,22 @@ export default function ClientDashboard({ hasPaid, userId, freeScansUsed }: { ha
                 </p>
               </div>
 
-              {/* Two options */}
-              <div className="flex flex-col sm:flex-row items-stretch gap-4 max-w-lg mx-auto">
-                {(() => {
-                  const singleUrl = process.env.NEXT_PUBLIC_LEMON_SQUEEZY_SINGLE_SCAN_URL;
-                  return singleUrl && singleUrl !== "undefined" ? (
-                    <a
-                      href={`${singleUrl}?checkout[custom][user_id]=${userId}`}
-                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-4 text-sm font-bold text-white
-                                 bg-white/[0.05] border border-white/10 hover:bg-white/[0.08] hover:border-white/20
-                                 transition-all duration-300"
-                    >
-                      <Zap className="w-4 h-4 text-primary" /> One More Scan — $9
-                    </a>
-                  ) : null;
-                })()}
-                {(() => {
-                  const checkoutUrl = process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_URL;
-                  return checkoutUrl && checkoutUrl !== "undefined" ? (
-                    <a
-                      href={`${checkoutUrl}?checkout[custom][user_id]=${userId}`}
-                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-4 text-sm font-bold text-black
-                                 bg-white hover:bg-zinc-200
-                                 transition-all duration-300 shadow-lg"
+              {(() => {
+                const checkoutUrl = process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_URL;
+                return checkoutUrl && checkoutUrl !== "undefined" ? (
+                  <a
+                    href={`${checkoutUrl}?checkout[custom][user_id]=${userId}`}
+                    className="inline-flex items-center justify-center gap-3 rounded-2xl px-10 py-5 text-[15px] font-bold text-black
+                               bg-white hover:bg-zinc-200 hover:-translate-y-1
+                               active:translate-y-0 shadow-2xl transition-all duration-300"
                   >
-                    <Sparkles className="w-4 h-4" /> Go Pro — $19 Lifetime
+                    <Sparkles className="w-5 h-5" /> Go Pro — €19 Lifetime
                   </a>
-                  ) : null;
-                })()}
-              </div>
-              <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold">Launch price · One-time payment · No subscription</p>
+                ) : null;
+              })()}
+              <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold">
+                Launch price <span className="line-through text-zinc-700">€29</span> · Use <span className="text-primary font-mono">FIRST10</span> for 50% off · No subscription
+              </p>
             </div>
           )}
 

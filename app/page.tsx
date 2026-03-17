@@ -134,7 +134,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-center gap-3 text-sm flex-wrap">
           <span className="px-2 py-0.5 rounded-full bg-primary text-black text-[10px] font-black uppercase tracking-widest">Launch Week</span>
           <span className="text-zinc-300 font-medium">
-            Pro: <span className="text-white font-black">$19</span> <span className="line-through text-zinc-500">$29</span>
+            Pro: <span className="text-white font-black">€19</span> <span className="line-through text-zinc-500">€29</span>
           </span>
           <span className="text-zinc-600">·</span>
           <span className="text-zinc-300 font-medium">
@@ -597,11 +597,11 @@ export default function Home() {
           See if your code has hidden revenue. Then decide.
         </p>
         <p className="text-xs text-zinc-400 mb-16 max-w-lg mx-auto leading-relaxed">
-          Most users find 1-2 viable ideas worth $500–$5k+ MRR if revived. One good revival pays for HiddenMRR 100x over.
+          Most users find 1-2 viable ideas worth €500–€5k+ MRR if revived. One good revival pays for HiddenMRR 100x over.
         </p>
 
         {/* Pricing cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
           {/* Free tier */}
           <div className="relative rounded-[2.5rem] border border-white/10 bg-zinc-900/40 p-8 text-left">
             <div className="relative z-10">
@@ -635,56 +635,23 @@ export default function Home() {
             </div>
           </div>
 
-          {/* $9 Single Scan */}
-          <div className="relative rounded-[2.5rem] border border-white/10 bg-zinc-900/50 p-8 text-left">
-            <div className="relative z-10">
-              <div className="flex items-end gap-3 mb-1">
-                <span className="text-5xl font-black text-white tracking-tighter">$9</span>
-                <span className="text-zinc-500 text-sm font-medium pb-2">per scan</span>
-              </div>
-              <p className="text-zinc-600 text-sm mb-8">One deep scan. Full blueprint.</p>
-
-              <ul className="space-y-3 mb-8">
-                {[
-                  'Everything in Free',
-                  'Use your own AI key (BYOK)',
-                  'Choose AI provider & model',
-                  'Full Market Readiness Plan',
-                  'Saved to scan history',
-                ].map((feature) => (
-                  <li key={feature} className="flex items-center gap-3 text-sm text-zinc-300">
-                    <CheckCircle2 className="w-4 h-4 text-zinc-400 shrink-0" />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-
-              <div className="flex justify-center">
-                <LoginButton />
-              </div>
-
-              <p className="text-center text-zinc-600 text-[10px] font-black uppercase tracking-widest mt-5">
-                Pay once · Scan once · Keep forever
-              </p>
-            </div>
-          </div>
-
           {/* Pro tier */}
           <div className="relative rounded-[2.5rem] border border-primary/25 bg-zinc-900/60 p-8 text-left shadow-[0_0_80px_-20px_rgba(153,102,255,0.25)]">
             <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
             <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-primary text-black text-[9px] font-black uppercase tracking-widest z-20">Launch Price</div>
             <div className="relative z-10">
               <div className="flex items-end gap-3 mb-1">
-                <span className="text-5xl font-black text-white tracking-tighter">$19</span>
+                <span className="text-5xl font-black text-white tracking-tighter">€19</span>
                 <span className="text-zinc-500 text-sm font-medium pb-2">lifetime</span>
-                <span className="text-zinc-700 text-sm line-through pb-2">$29</span>
+                <span className="text-zinc-700 text-sm line-through pb-2">€29</span>
               </div>
-              <p className="text-zinc-600 text-sm mb-8">Unlimited scans. Full portfolio.</p>
+              <p className="text-zinc-600 text-sm mb-8">Unlimited scans. Full portfolio. Forever.</p>
 
               <ul className="space-y-3 mb-8">
                 {[
-                  'Everything in Single Scan',
+                  'Everything in Free',
                   'Scan up to 20 repos at once',
+                  'Use your own AI key (BYOK)',
                   'Portfolio comparison & ranking',
                   'Unlimited re-scans forever',
                   'Full scan history dashboard',
@@ -702,7 +669,7 @@ export default function Home() {
               </div>
 
               <p className="text-center text-zinc-600 text-[10px] font-black uppercase tracking-widest mt-5">
-                Use <span className="text-primary">FIRST10</span> for 50% off
+                Use <span className="text-primary font-mono">FIRST10</span> for 50% off
               </p>
             </div>
           </div>
@@ -718,8 +685,8 @@ export default function Home() {
             answer="Yes, 100% free. No API key, no credit card. Connect GitHub, pick a repo, get a full Market Readiness Plan with go-to-market roadmap, brutally honest scoring, and actionable next steps. We cover the AI cost for your first scan."
           />
           <FAQItem
-            question="Why $9 and $19?"
-            answer="$9 gets you one more deep scan — perfect if you know which repo you want analyzed. $19 unlocks unlimited scans forever: compare up to 20 repos at once, find your best project, and rescan as your code evolves. No subscriptions. Use code FIRST10 for 50% off (first 10 users only)."
+            question="Why €19?"
+            answer="€19 one-time unlocks unlimited scans forever: compare up to 20 repos at once, find your best project, and rescan as your code evolves. No subscriptions. That's less than a month of most SaaS tools — and one good revival easily pays for it 100x over. Use code FIRST10 for 50% off (first 10 users only)."
           />
           <FAQItem
             question="What repositories can you analyze?"
