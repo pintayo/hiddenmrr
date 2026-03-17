@@ -61,7 +61,7 @@ function Paywall({ userId }: { userId: string }) {
 
         <h2 className="text-3xl sm:text-4xl font-bold tracking-tighter text-white mb-4">You Saw What&apos;s Possible</h2>
         <p className="text-zinc-400 max-w-md mb-10 text-base sm:text-lg leading-relaxed">
-          Your free scan showed real potential. Now go deeper — scan more repos, compare across your portfolio, and find your highest-ROI project.
+          You saw real potential in your repos. Now go deeper — scan more, compare across your entire portfolio, and find your highest-ROI project.
         </p>
 
         {/* Two-tier pricing */}
@@ -89,12 +89,13 @@ function Paywall({ userId }: { userId: string }) {
             )}
           </div>
 
-          {/* $29 Unlimited */}
+          {/* $19 Unlimited */}
           <div className="flex-1 rounded-2xl border border-primary/25 bg-primary/5 p-6 space-y-4 text-left relative">
-            <div className="absolute -top-3 right-4 px-3 py-1 rounded-full bg-primary text-black text-[9px] font-black uppercase tracking-widest">Best Value</div>
+            <div className="absolute -top-3 right-4 px-3 py-1 rounded-full bg-primary text-black text-[9px] font-black uppercase tracking-widest">Launch Price</div>
             <div className="flex items-end gap-2">
-              <span className="text-3xl font-black text-white">$29</span>
+              <span className="text-3xl font-black text-white">$19</span>
               <span className="text-zinc-600 text-xs font-bold pb-1">lifetime</span>
+              <span className="text-zinc-700 text-xs line-through pb-1">$29</span>
             </div>
             <p className="text-xs text-zinc-400">Unlimited scans, up to 20 repos at once, forever.</p>
             {isProAvailable ? (
@@ -114,7 +115,7 @@ function Paywall({ userId }: { userId: string }) {
             )}
           </div>
         </div>
-        <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold mt-6">Secured by Lemon Squeezy · Instant Access</p>
+        <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold mt-6">Launch price · Secured by Lemon Squeezy</p>
       </div>
     </div>
   );
@@ -404,7 +405,7 @@ export default function ClientDashboard({ hasPaid, userId, freeScansUsed }: { ha
                   Get Your Free Scan
                 </h2>
                 <p className="text-zinc-400 text-base max-w-md mx-auto leading-relaxed">
-                  No API key needed. We&apos;ll analyze your best repo and show you exactly what to build, who to sell to, and how to get your first customer.
+                  No API key needed. We&apos;ll analyze your repo and show you exactly what to build, who to sell to, and how to get your first customer.
                 </p>
               </div>
               <button
@@ -961,10 +962,10 @@ export default function ClientDashboard({ hasPaid, userId, freeScansUsed }: { ha
               </div>
               <div className="space-y-2">
                 <h3 className="text-2xl sm:text-3xl font-black tracking-tighter text-white">
-                  Now do this for all {repos.length > 0 ? repos.length : 'your'} repos
+                  Now compare all {repos.length > 0 ? repos.length : 'your'} repos
                 </h3>
                 <p className="text-zinc-400 max-w-lg mx-auto text-base leading-relaxed">
-                  You saw the blueprint for 1 repo. Which of your {repos.length > 0 ? repos.length : ''} other projects is the real winner? Scan them all, ranked and compared.
+                  You saw what 1 repo looks like. Scan your entire portfolio — ranked, scored, and compared — to find the real winner.
                 </p>
               </div>
 
@@ -992,12 +993,12 @@ export default function ClientDashboard({ hasPaid, userId, freeScansUsed }: { ha
                                  bg-white hover:bg-zinc-200
                                  transition-all duration-300 shadow-lg"
                   >
-                    <Sparkles className="w-4 h-4" /> Go Pro — $29 Lifetime
+                    <Sparkles className="w-4 h-4" /> Go Pro — $19 Lifetime
                   </a>
                   ) : null;
                 })()}
               </div>
-              <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold">One-time payment · Instant access · No subscription</p>
+              <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold">Launch price · One-time payment · No subscription</p>
             </div>
           )}
 

@@ -81,19 +81,20 @@ export async function analyzeSelectedRepos(
 
   const freeScansUsed = profile?.free_scans_used || 0;
   const singleScans = profile?.single_scans_purchased || 0;
-  const isFreeEligible = !profile?.has_paid && repoFullNames.length === 1 && freeScansUsed < 1;
+  const FREE_SCAN_LIMIT = 1;
+  const isFreeEligible = !profile?.has_paid && repoFullNames.length === 1 && freeScansUsed < FREE_SCAN_LIMIT;
   const isSingleScanEligible = !profile?.has_paid && repoFullNames.length === 1 && singleScans > freeScansUsed;
 
   if (!profile?.has_paid && !isFreeEligible && !isSingleScanEligible) {
     if (repoFullNames.length > 1) {
-      throw new Error("Multi-repo scan requires the Pro plan ($29). Or grab a single deep scan for $9.");
+      throw new Error("Multi-repo scan requires the Pro plan ($19). Or grab a single deep scan for $9.");
     }
-    throw new Error("You've used your free scan. Grab another deep scan for $9, or go Pro for $29 (unlimited).");
+    throw new Error("You've used your free scan. Grab another deep scan for $9, or go Pro for $19 (unlimited).");
   }
 
-  // For free scans, use the server-side managed API key (no BYOK friction)
+  // For free scans, use the server-side managed Gemini API key (no BYOK friction)
   const useServerKey = isFreeEligible && !apiKey;
-  const serverApiKey = process.env.OPENAI_API_KEY;
+  const serverApiKey = process.env.GEMINI_API_KEY;
 
   let effectiveApiKey = apiKey;
   let effectiveProvider = provider;
@@ -102,8 +103,8 @@ export async function analyzeSelectedRepos(
   if (useServerKey) {
     if (!serverApiKey) throw new Error("Free scan is temporarily unavailable. Please provide your own API key.");
     effectiveApiKey = serverApiKey;
-    effectiveProvider = 'openai';
-    effectiveModel = 'gpt-4o-mini';
+    effectiveProvider = 'google';
+    effectiveModel = 'gemini-2.5-flash';
   }
 
   if (!effectiveApiKey) throw new Error("No API key provided. Enter your API key or use your free scan.");

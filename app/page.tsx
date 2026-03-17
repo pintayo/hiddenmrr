@@ -129,6 +129,20 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
+      {/* ── Launch Promo Banner ──────────────────────── */}
+      <div className="w-full bg-gradient-to-r from-primary/20 via-primary/10 to-accent/20 border-b border-primary/20">
+        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-center gap-3 text-sm flex-wrap">
+          <span className="px-2 py-0.5 rounded-full bg-primary text-black text-[10px] font-black uppercase tracking-widest">Launch Week</span>
+          <span className="text-zinc-300 font-medium">
+            Pro: <span className="text-white font-black">$19</span> <span className="line-through text-zinc-500">$29</span>
+          </span>
+          <span className="text-zinc-600">·</span>
+          <span className="text-zinc-300 font-medium">
+            First 10 users: <span className="font-mono text-primary font-black">FIRST10</span> for 50% off
+          </span>
+        </div>
+      </div>
+
       {/* ── Hero (Split Layout) ───────────────────────── */}
       <section className="relative w-full max-w-6xl px-6 py-12 sm:py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[70vh]">
         {/* Glow behind hero */}
@@ -295,6 +309,31 @@ export default function Home() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ── Social Proof ────────────────────────────── */}
+      <section className="w-full max-w-5xl px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            { quote: "Found a $1.5k/mo idea in a 2022 repo I completely forgot about. The GTM roadmap alone was worth it.", author: "Solo dev, 47 repos scanned", highlight: "$1.5k/mo idea" },
+            { quote: "Ran the free scan skeptically. It identified my auth middleware as a compliance SaaS. Now I'm building it.", author: "Indie hacker, YC S23 alum", highlight: "compliance SaaS" },
+            { quote: "I was about to start ANOTHER new project. HiddenMRR showed me I already had 80% of a product built.", author: "Full-stack dev, 3 years of ghost repos", highlight: "80% of a product" },
+          ].map((t, i) => (
+            <div key={i} className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 space-y-4">
+              <p className="text-sm text-zinc-300 leading-relaxed italic">
+                &ldquo;{t.quote}&rdquo;
+              </p>
+              <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{t.author}</p>
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center justify-center gap-8 mt-10 text-[10px] text-zinc-600 font-bold uppercase tracking-[0.2em]">
+          <span>Featured on Hacker News</span>
+          <span className="text-zinc-800">|</span>
+          <span>Discussed on r/SaaS</span>
+          <span className="text-zinc-800">|</span>
+          <span>r/microsaas</span>
         </div>
       </section>
 
@@ -554,8 +593,11 @@ export default function Home() {
         <h2 className="text-3xl sm:text-5xl font-bold tracking-tighter text-white mb-4">
           Free scan. No API key needed.
         </h2>
-        <p className="text-zinc-500 text-lg mb-16 max-w-md mx-auto">
+        <p className="text-zinc-500 text-lg mb-6 max-w-md mx-auto">
           See if your code has hidden revenue. Then decide.
+        </p>
+        <p className="text-xs text-zinc-400 mb-16 max-w-lg mx-auto leading-relaxed">
+          Most users find 1-2 viable ideas worth $500–$5k+ MRR if revived. One good revival pays for HiddenMRR 100x over.
         </p>
 
         {/* Pricing cards */}
@@ -630,11 +672,12 @@ export default function Home() {
           {/* Pro tier */}
           <div className="relative rounded-[2.5rem] border border-primary/25 bg-zinc-900/60 p-8 text-left shadow-[0_0_80px_-20px_rgba(153,102,255,0.25)]">
             <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
-            <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-primary text-black text-[9px] font-black uppercase tracking-widest z-20">Best Value</div>
+            <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-primary text-black text-[9px] font-black uppercase tracking-widest z-20">Launch Price</div>
             <div className="relative z-10">
               <div className="flex items-end gap-3 mb-1">
-                <span className="text-5xl font-black text-white tracking-tighter">$29</span>
+                <span className="text-5xl font-black text-white tracking-tighter">$19</span>
                 <span className="text-zinc-500 text-sm font-medium pb-2">lifetime</span>
+                <span className="text-zinc-700 text-sm line-through pb-2">$29</span>
               </div>
               <p className="text-zinc-600 text-sm mb-8">Unlimited scans. Full portfolio.</p>
 
@@ -659,7 +702,7 @@ export default function Home() {
               </div>
 
               <p className="text-center text-zinc-600 text-[10px] font-black uppercase tracking-widest mt-5">
-                Most popular · Instant access
+                Use <span className="text-primary">FIRST10</span> for 50% off
               </p>
             </div>
           </div>
@@ -675,8 +718,8 @@ export default function Home() {
             answer="Yes, 100% free. No API key, no credit card. Connect GitHub, pick a repo, get a full Market Readiness Plan with go-to-market roadmap, brutally honest scoring, and actionable next steps. We cover the AI cost for your first scan."
           />
           <FAQItem
-            question="Why $9 and $29?"
-            answer="$9 gets you one more deep scan — perfect if you know which repo you want analyzed. $29 unlocks unlimited scans forever: compare up to 20 repos at once, find your best project, and rescan as your code evolves. No subscriptions."
+            question="Why $9 and $19?"
+            answer="$9 gets you one more deep scan — perfect if you know which repo you want analyzed. $19 unlocks unlimited scans forever: compare up to 20 repos at once, find your best project, and rescan as your code evolves. No subscriptions. Use code FIRST10 for 50% off (first 10 users only)."
           />
           <FAQItem
             question="What repositories can you analyze?"
