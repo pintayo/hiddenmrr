@@ -1,8 +1,8 @@
 "use client";
 
 import { LoginButton } from "@/components/AuthButtons";
-import { Lock, ShieldCheck, Zap, Code, Target, Sparkles, ChevronDown, CheckCircle2, Shield, EyeOff, Search, TrendingUp, AlertCircle, Scissors, Rocket, Trophy, DollarSign, Clock } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Lock, ShieldCheck, Zap, Code, Target, Sparkles, ChevronDown, CheckCircle2, Shield, EyeOff, Search, TrendingUp, AlertCircle, Scissors, Rocket, Trophy, DollarSign, Clock, Timer } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 function FAQItem({ question, answer }: { question: string, answer: string }) {
@@ -29,9 +29,27 @@ function FAQItem({ question, answer }: { question: string, answer: string }) {
   );
 }
 
+// Countdown: 2 weeks from March 17, 2026. After expiry, just hide the countdown.
+const PROMO_END = new Date("2026-03-31T23:59:59Z").getTime();
+
+function useCountdown() {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const diff = Math.max(0, PROMO_END - now);
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const minutes = Math.floor((diff % 3600000) / 60000);
+  const seconds = Math.floor((diff % 60000) / 1000);
+  return { days, hours, minutes, seconds, expired: diff === 0 };
+}
+
 export default function Home() {
   const [progress, setProgress] = useState(0);
   const [isFound, setIsFound] = useState(false);
+  const countdown = useCountdown();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -132,14 +150,26 @@ export default function Home() {
       {/* ── Launch Promo Banner ──────────────────────── */}
       <div className="w-full bg-gradient-to-r from-primary/20 via-primary/10 to-accent/20 border-b border-primary/20">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-center gap-3 text-sm flex-wrap">
-          <span className="px-2 py-0.5 rounded-full bg-primary text-black text-[10px] font-black uppercase tracking-widest">Launch Week</span>
+          <span className="px-2 py-0.5 rounded-full bg-primary text-black text-[10px] font-black uppercase tracking-widest">Launch Deal</span>
           <span className="text-zinc-300 font-medium">
             Pro: <span className="text-white font-black">€19</span> <span className="line-through text-zinc-500">€29</span>
           </span>
           <span className="text-zinc-600">·</span>
           <span className="text-zinc-300 font-medium">
-            First 10 users: <span className="font-mono text-primary font-black">FIRST10</span> for 50% off
+            Use code <span className="font-mono text-primary font-black">START50</span> for 50% off
           </span>
+          {!countdown.expired && (
+            <>
+              <span className="text-zinc-600">·</span>
+              <span className="inline-flex items-center gap-1.5 text-zinc-300 font-medium">
+                <Timer className="w-3.5 h-3.5 text-primary" />
+                <span className="font-mono text-white font-black tabular-nums">
+                  {countdown.days}d {String(countdown.hours).padStart(2, '0')}h {String(countdown.minutes).padStart(2, '0')}m {String(countdown.seconds).padStart(2, '0')}s
+                </span>
+                <span className="text-zinc-400 text-xs">left</span>
+              </span>
+            </>
+          )}
         </div>
       </div>
 
@@ -638,7 +668,14 @@ export default function Home() {
           {/* Pro tier */}
           <div className="relative rounded-[2.5rem] border border-primary/25 bg-zinc-900/60 p-8 text-left shadow-[0_0_80px_-20px_rgba(153,102,255,0.25)]">
             <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
-            <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-primary text-black text-[9px] font-black uppercase tracking-widest z-20">Launch Price</div>
+            <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-primary text-black text-[9px] font-black uppercase tracking-widest z-20">
+              {!countdown.expired ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <Timer className="w-3 h-3" />
+                  {countdown.days}d {String(countdown.hours).padStart(2, '0')}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')} left
+                </span>
+              ) : "Launch Price"}
+            </div>
             <div className="relative z-10">
               <div className="flex items-end gap-3 mb-1">
                 <span className="text-5xl font-black text-white tracking-tighter">€19</span>
@@ -669,7 +706,7 @@ export default function Home() {
               </div>
 
               <p className="text-center text-zinc-600 text-[10px] font-black uppercase tracking-widest mt-5">
-                Use <span className="text-primary font-mono">FIRST10</span> for 50% off
+                Use <span className="text-primary font-mono">START50</span> for 50% off
               </p>
             </div>
           </div>
@@ -686,7 +723,7 @@ export default function Home() {
           />
           <FAQItem
             question="Why €19?"
-            answer="€19 one-time unlocks unlimited scans forever: compare up to 20 repos at once, find your best project, and rescan as your code evolves. No subscriptions. That's less than a month of most SaaS tools — and one good revival easily pays for it 100x over. Use code FIRST10 for 50% off (first 10 users only)."
+            answer="€19 one-time unlocks unlimited scans forever: compare up to 20 repos at once, find your best project, and rescan as your code evolves. No subscriptions. That's less than a month of most SaaS tools — and one good revival easily pays for it 100x over. Use code START50 for 50% off."
           />
           <FAQItem
             question="What repositories can you analyze?"
