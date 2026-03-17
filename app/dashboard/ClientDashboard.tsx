@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import {
   Lock, Key, Loader2, Sparkles, Code, CheckCircle,
   Zap, Target, DollarSign, RotateCcw, AlertTriangle,
-  ChevronDown, HelpCircle
+  ChevronDown, HelpCircle, AlertCircle, Scissors, Rocket,
+  Clock, ArrowRight, Trophy
 } from "lucide-react";
 import { fetchUserRepos, analyzeSelectedRepos } from "@/app/actions";
 import { CostEstimator } from "@/components/CostEstimator";
@@ -564,6 +565,131 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
               </div>
             </div>
           </div>
+
+          {/* ── MARKET READINESS PLAN ────────────────────── */}
+          {results.marketReadiness && (
+            <div className="space-y-8 animate-fade-in-up">
+              <div className="text-center space-y-2">
+                <h3 className="text-2xl sm:text-3xl font-black tracking-tighter text-white">
+                  Market Readiness Plan
+                </h3>
+                <p className="text-sm text-zinc-500 font-medium uppercase tracking-[0.2em]">
+                  Your actionable blueprint from code to first paying customer
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                {/* Must Fix First */}
+                {Array.isArray(results.marketReadiness.mustFix) && results.marketReadiness.mustFix.length > 0 && (
+                  <div className="md:col-span-1 rounded-[2rem] border border-red-500/10 bg-zinc-950 p-8 space-y-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 shrink-0">
+                        <AlertCircle className="w-5 h-5 text-red-400" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white tracking-tight">Must Fix First</h4>
+                        <p className="text-[10px] font-black text-red-400/60 uppercase tracking-[0.2em]">Critical blockers before launch</p>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      {results.marketReadiness.mustFix.map((fix: any, i: number) => (
+                        <div key={i} className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] space-y-2">
+                          <div className="flex items-center justify-between gap-3">
+                            <h5 className="text-sm font-bold text-white flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-md bg-red-500/10 border border-red-500/20 flex items-center justify-center text-[10px] font-black text-red-400">{i + 1}</span>
+                              {fix.item}
+                            </h5>
+                            <span className={`shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border
+                              ${fix.effort === 'hours' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                : fix.effort === 'days' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                              <Clock className="w-3 h-3" />
+                              {fix.effort}
+                            </span>
+                          </div>
+                          <p className="text-xs text-zinc-500 leading-relaxed">{fix.reason}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Cut From MVP */}
+                {Array.isArray(results.marketReadiness.cutFromMVP) && results.marketReadiness.cutFromMVP.length > 0 && (
+                  <div className="md:col-span-1 rounded-[2rem] border border-amber-500/10 bg-zinc-950 p-8 space-y-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 shrink-0">
+                        <Scissors className="w-5 h-5 text-amber-400" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white tracking-tight">Cut From MVP</h4>
+                        <p className="text-[10px] font-black text-amber-400/60 uppercase tracking-[0.2em]">Skip these for now — ship faster</p>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      {results.marketReadiness.cutFromMVP.map((cut: any, i: number) => (
+                        <div key={i} className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] flex items-start gap-3">
+                          <div className="w-5 h-5 rounded-md bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                            <Scissors className="w-3 h-3 text-amber-400" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-bold text-zinc-300 line-through decoration-amber-500/40">{cut.feature}</p>
+                            <p className="text-xs text-zinc-500 leading-relaxed">{cut.reason}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Go-To-Market Roadmap */}
+              {Array.isArray(results.marketReadiness.goToMarket) && results.marketReadiness.goToMarket.length > 0 && (
+                <div className="rounded-[3rem] border border-white/[0.08] bg-zinc-950 p-8 sm:p-12 space-y-10">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                    <h4 className="text-2xl font-bold text-white tracking-tighter flex items-center gap-3">
+                      <Rocket className="w-7 h-7 text-primary" />
+                      Go-To-Market Roadmap
+                    </h4>
+                    <div className="px-5 py-2 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-black uppercase tracking-[0.2em] text-primary text-center">
+                      Code → First Customer
+                    </div>
+                  </div>
+
+                  <div className="relative space-y-0">
+                    {/* Vertical timeline line */}
+                    <div className="absolute left-[19px] top-4 bottom-4 w-px bg-gradient-to-b from-primary/40 via-primary/20 to-transparent hidden sm:block" />
+
+                    {results.marketReadiness.goToMarket.map((gtm: any, i: number) => (
+                      <div key={i} className="relative flex gap-6 group">
+                        {/* Timeline node */}
+                        <div className="shrink-0 relative z-10">
+                          <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-white/10 group-hover:border-primary/30 flex items-center justify-center text-xs font-black text-white shadow-xl transition-colors">
+                            {String(gtm.step || i + 1).padStart(2, '0')}
+                          </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="pb-8 flex-1 space-y-3">
+                          <h5 className="text-lg font-bold text-white tracking-tight group-hover:text-primary transition-colors">
+                            {gtm.title}
+                          </h5>
+                          <p className="text-sm text-zinc-400 leading-relaxed">
+                            {gtm.detail}
+                          </p>
+                          <div className="flex items-center gap-2 text-xs font-bold text-emerald-400/70">
+                            <Trophy className="w-3.5 h-3.5" />
+                            <span>{gtm.milestone}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* ── RUNNER-UPS ─────────────────────────────── */}
           {Array.isArray(results.runnerUps) && results.runnerUps.length > 0 && (

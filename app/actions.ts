@@ -119,30 +119,47 @@ export async function analyzeSelectedRepos(
     };
   }));
 
-  const systemPrompt = `You are a ruthless, highly successful indie hacker and software appraiser. The user is feeding you README.md and package.json files from their abandoned side projects. Your job is to rank every single project based on market demand, B2B potential, and monetization.
+  const systemPrompt = `You are a ruthless, highly successful indie hacker and software appraiser. The user is feeding you README.md and package.json files from their abandoned side projects. Your job is to rank every single project based on market demand, B2B potential, and monetization — then deliver a brutally actionable market readiness plan for the winner.
 
 You MUST return a RAW JSON object with the following structure:
 {
-  "winner": { 
-    "topProjectName": "String", 
-    "completenessScore": Number (1-100), 
-    "targetNiche": "String (Be ultra-specific)", 
-    "monetizationModel": "String", 
-    "brutalTruth": "String (1 sentence)", 
-    "weekendLaunchPlan": ["Step 1", "Step 2", "Step 3"] 
+  "winner": {
+    "topProjectName": "String",
+    "completenessScore": Number (1-100),
+    "targetNiche": "String (Be ultra-specific)",
+    "monetizationModel": "String",
+    "brutalTruth": "String (1 sentence)",
+    "weekendLaunchPlan": ["Step 1", "Step 2", "Step 3"]
+  },
+  "marketReadiness": {
+    "mustFix": [
+      { "item": "Short title (e.g. Add Stripe billing)", "reason": "1 sentence why this blocks launch", "effort": "hours|days|week" }
+    ],
+    "cutFromMVP": [
+      { "feature": "Feature name to skip", "reason": "1 sentence why it can wait" }
+    ],
+    "goToMarket": [
+      { "step": Number (1-based), "title": "Short action title", "detail": "2-3 sentences of specific, actionable instructions. Include concrete platforms, tools, or strategies.", "milestone": "What success looks like after this step" }
+    ]
   },
   "runnerUps": [
-    { 
-      "projectName": "String", 
-      "score": Number, 
-      "niche": "String", 
-      "shortReason": "1 sentence on why it has potential but lost to the winner." 
+    {
+      "projectName": "String",
+      "score": Number,
+      "niche": "String",
+      "shortReason": "1 sentence on why it has potential but lost to the winner."
     }
   ],
   "leaderboard": [
     { "projectName": "String", "score": Number }
   ]
 }
+
+MARKET READINESS RULES:
+- mustFix: List 3-5 CRITICAL blockers only. These are things that absolutely prevent charging money (e.g. no auth, no billing, no deploy, critical bugs). Be specific to what you see in the code/README.
+- cutFromMVP: List 3-5 features the dev should NOT build yet. Kill scope creep. Be opinionated.
+- goToMarket: List 5-7 concrete steps from current state to first paying customer. Be ultra-specific: name real platforms (Product Hunt, Indie Hackers, X/Twitter, cold email), real tools (Stripe, Vercel, Resend), and real tactics. No generic advice.
+- effort field must be one of: "hours", "days", "week"
 
 - NO markdown formatting.
 - NO backticks.
@@ -215,6 +232,12 @@ You MUST return a RAW JSON object with the following structure:
     }
     if (!Array.isArray(result.runnerUps)) result.runnerUps = [];
     if (!Array.isArray(result.leaderboard)) result.leaderboard = [];
+
+    // Normalize marketReadiness
+    if (!result.marketReadiness) result.marketReadiness = {};
+    if (!Array.isArray(result.marketReadiness.mustFix)) result.marketReadiness.mustFix = [];
+    if (!Array.isArray(result.marketReadiness.cutFromMVP)) result.marketReadiness.cutFromMVP = [];
+    if (!Array.isArray(result.marketReadiness.goToMarket)) result.marketReadiness.goToMarket = [];
 
     // Persist to Supabase
     if (result.winner && result.winner.topProjectName) {
