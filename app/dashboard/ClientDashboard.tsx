@@ -93,7 +93,7 @@ function Paywall({ userId }: { userId: string }) {
               <span>Lifetime access</span>
             </div>
             <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold">
-              Launch price <span className="line-through text-zinc-700">€29</span> → <span className="text-primary">€19</span> · Use <span className="text-primary font-mono">START50</span> for 50% off
+              Launch price <span className="line-through text-zinc-700">€29</span> → <span className="text-primary">€19</span> · Use <span className="text-primary font-mono">FIRST10</span> for 50% off
             </p>
           </div>
         </div>
@@ -964,7 +964,7 @@ export default function ClientDashboard({ hasPaid, userId, freeScansUsed }: { ha
                 ) : null;
               })()}
               <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold">
-                Launch price <span className="line-through text-zinc-700">€29</span> · Use <span className="text-primary font-mono">START50</span> for 50% off · No subscription
+                Launch price <span className="line-through text-zinc-700">€29</span> · Use <span className="text-primary font-mono">FIRST10</span> for 50% off · No subscription
               </p>
             </div>
           )}

@@ -156,7 +156,7 @@ export default function Home() {
           </span>
           <span className="text-zinc-600">·</span>
           <span className="text-zinc-300 font-medium">
-            Use code <span className="font-mono text-primary font-black">START50</span> for 50% off
+            First 10 users: <span className="font-mono text-primary font-black">FIRST10</span> for 50% off
           </span>
           {!countdown.expired && (
             <>
@@ -706,7 +706,7 @@ export default function Home() {
               </div>
 
               <p className="text-center text-zinc-600 text-[10px] font-black uppercase tracking-widest mt-5">
-                Use <span className="text-primary font-mono">START50</span> for 50% off
+                Use <span className="text-primary font-mono">FIRST10</span> for 50% off
               </p>
             </div>
           </div>
@@ -723,7 +723,7 @@ export default function Home() {
           />
           <FAQItem
             question="Why €19?"
-            answer="€19 one-time unlocks unlimited scans forever: compare up to 20 repos at once, find your best project, and rescan as your code evolves. No subscriptions. That's less than a month of most SaaS tools — and one good revival easily pays for it 100x over. Use code START50 for 50% off."
+            answer="€19 one-time unlocks unlimited scans forever: compare up to 20 repos at once, find your best project, and rescan as your code evolves. No subscriptions. That's less than a month of most SaaS tools — and one good revival easily pays for it 100x over. Use code FIRST10 for 50% off (first 10 users only)."
           />
           <FAQItem
             question="What repositories can you analyze?"
