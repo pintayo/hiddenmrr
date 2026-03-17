@@ -102,6 +102,22 @@ export default function Home() {
             "text": "We use the official GitHub OAuth flow. We do not clone repos. We only read the file structure, README, and package.json to understand context.",
           },
         },
+        {
+          "@type": "Question",
+          "name": "What does the analysis report include?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You receive a winner selection (the repo with the highest revenue potential), a Completeness Score, a Brutal Truth AI verdict, a 3-phase Weekend Launch Blueprint, a list of high-potential runner-up projects, and a ranked Graveyard Leaderboard covering every repo you scanned.",
+          },
+        },
+        {
+          "@type": "Question",
+          "name": "How long does an analysis take?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Usually 2–5 minutes depending on the number of repos selected and the AI model you choose. GPT-4o Mini and Gemini Flash are the fastest options. You can scan up to 20 repositories per run.",
+          },
+        },
       ],
     },
   ];
@@ -356,6 +372,57 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Pricing ───────────────────────────────────── */}
+      <section className="w-full max-w-3xl px-6 py-24 sm:py-32 text-center">
+        <div className="inline-flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-tighter mb-6">
+          <Sparkles className="w-4 h-4" />
+          <span>Simple Pricing</span>
+        </div>
+        <h2 className="text-3xl sm:text-5xl font-bold tracking-tighter text-white mb-4">
+          One report. One price.<br/>No subscription. Ever.
+        </h2>
+        <p className="text-zinc-500 text-lg mb-16 max-w-md mx-auto">
+          Pay once and unlock AI appraisals for every repo you will ever abandon.
+        </p>
+
+        {/* Pricing card */}
+        <div className="relative rounded-[2.5rem] border border-primary/25 bg-zinc-900/60 p-10 text-left max-w-md mx-auto shadow-[0_0_80px_-20px_rgba(153,102,255,0.25)]">
+          <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
+          <div className="relative z-10">
+            <div className="flex items-end gap-3 mb-1">
+              <span className="text-6xl font-black text-white tracking-tighter">$29</span>
+              <span className="text-zinc-500 text-sm font-medium pb-3">USD · one-time</span>
+            </div>
+            <p className="text-zinc-600 text-sm mb-10">No monthly fees. No usage caps. No upsells.</p>
+
+            <ul className="space-y-4 mb-10">
+              {[
+                'AI appraisal across all your GitHub repos',
+                'Winner selection with B2B niche identification',
+                'Revenue potential & market demand score',
+                'GTM strategy tailored to your stack',
+                '48-hour weekend launch blueprint',
+                'Full Graveyard Leaderboard — every repo ranked',
+                'Lifetime access — pay once, use forever',
+              ].map((feature) => (
+                <li key={feature} className="flex items-center gap-3 text-sm text-zinc-300">
+                  <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                  {feature}
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex justify-center">
+              <LoginButton />
+            </div>
+
+            <p className="text-center text-zinc-600 text-[10px] font-black uppercase tracking-widest mt-6">
+              GitHub OAuth · BYOK Privacy · Instant Access
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* ── FAQ ──────────────────────────────────────── */}
       <section className="w-full max-w-3xl px-6 py-24 sm:py-32">
         <h2 className="text-3xl font-bold text-white mb-10 tracking-tight text-center">Frequently Asked</h2>
@@ -372,10 +439,34 @@ export default function Home() {
             question="How does BYOK work?" 
             answer="You provide your OpenAI API key in the dashboard. We use it to perform the analysis on your behalf. This keeps HiddenMRR cheap and ensures you control your AI costs." 
           />
-          <FAQItem 
-            question="Is my code safe?" 
-            answer="We use the official GitHub OAuth flow. We do not clones repos. We only read the file structure, README, and package.json to understand context." 
+          <FAQItem
+            question="Is my code safe?"
+            answer="We use the official GitHub OAuth flow. We do not clone repos. We only read the file structure, README, and package.json to understand context."
           />
+          <FAQItem
+            question="What does the analysis report include?"
+            answer="You receive a winner selection (the repo with the highest revenue potential), a Completeness Score, a Brutal Truth AI verdict, a 3-phase Weekend Launch Blueprint, a list of high-potential runner-up projects, and a ranked Graveyard Leaderboard covering every repo you scanned."
+          />
+          <FAQItem
+            question="How long does an analysis take?"
+            answer="Usually 2–5 minutes depending on the number of repos selected and the AI model you choose. GPT-4o Mini and Gemini Flash are the fastest options. You can scan up to 20 repositories per run."
+          />
+        </div>
+      </section>
+
+      {/* ── Final CTA ─────────────────────────────────── */}
+      <section className="w-full max-w-3xl px-6 py-24 sm:py-32 text-center">
+        <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tighter text-white mb-4 leading-[1.05]">
+          Your best idea is already written.<br/>You just abandoned it.
+        </h2>
+        <p className="text-zinc-500 text-lg mb-10 max-w-sm mx-auto">
+          $29. One scan. Find the project worth building this weekend.
+        </p>
+        <div className="flex flex-col items-center gap-4">
+          <LoginButton />
+          <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">
+            No subscription · Instant access · Cancel never needed
+          </p>
         </div>
       </section>
 

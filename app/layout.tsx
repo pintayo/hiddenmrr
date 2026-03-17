@@ -11,6 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.hiddenmrr.com'),
   title: 'HiddenMRR | Find the $1,000/mo SaaS Hiding in Your GitHub',
   description: 'Stop starting new projects. Connect your GitHub, let AI appraise your abandoned code, and get a step-by-step blueprint to launch your most profitable repo this weekend.',
   alternates: {
