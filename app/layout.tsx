@@ -13,6 +13,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'HiddenMRR | Find the $1,000/mo SaaS Hiding in Your GitHub',
   description: 'Stop starting new projects. Connect your GitHub, let AI appraise your abandoned code, and get a step-by-step blueprint to launch your most profitable repo this weekend.',
+  alternates: {
+    canonical: 'https://www.hiddenmrr.com',
+  },
   openGraph: {
     title: 'HiddenMRR | Find the $1,000/mo SaaS Hiding in Your GitHub',
     description: 'Stop starting new projects. Connect your GitHub, let AI appraise your abandoned code, and get a step-by-step blueprint to launch your most profitable repo this weekend.',
@@ -32,8 +35,23 @@ import { authOptions } from "@/lib/auth";
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
 
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "HiddenMRR",
+    "url": "https://www.hiddenmrr.com",
+    "description": "AI-powered platform that scans abandoned GitHub repositories and identifies high-margin B2B SaaS opportunities.",
+    "sameAs": ["https://twitter.com/HiddenMRR"],
+  };
+
   return (
     <html lang="en" className="dark">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+      </head>
       <body className={`${inter.variable} bg-background text-foreground antialiased min-h-screen flex flex-col font-sans`}>
         <Providers>
           {/* ── Navbar ─────────────────────────────────────── */}

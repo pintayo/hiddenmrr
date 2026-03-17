@@ -53,8 +53,65 @@ export default function Home() {
     }
   }, [progress]);
 
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "HiddenMRR | Find the $1,000/mo SaaS Hiding in Your GitHub",
+      "url": "https://www.hiddenmrr.com",
+      "description": "Stop starting new projects. Connect your GitHub, let AI appraise your abandoned code, and get a step-by-step blueprint to launch your most profitable repo this weekend.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "HiddenMRR",
+        "url": "https://www.hiddenmrr.com",
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why a $29 one-time fee?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Subscription models are for maintenance. We are a catalyst. Pay once, use it for every ghost repo you start this year. No hidden costs beyond your own LLM usage.",
+          },
+        },
+        {
+          "@type": "Question",
+          "name": "What repositories can you analyze?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "If it's on GitHub, we can scan it. Private or public. We focus on Node.js/Python/Next.js/React projects as they have the clearest SaaS monetization paths.",
+          },
+        },
+        {
+          "@type": "Question",
+          "name": "How does BYOK work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You provide your OpenAI API key in the dashboard. We use it to perform the analysis on your behalf. This keeps HiddenMRR cheap and ensures you control your AI costs.",
+          },
+        },
+        {
+          "@type": "Question",
+          "name": "Is my code safe?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We use the official GitHub OAuth flow. We do not clone repos. We only read the file structure, README, and package.json to understand context.",
+          },
+        },
+      ],
+    },
+  ];
+
   return (
     <main className="flex-1 flex flex-col items-center bg-zinc-950 selection:bg-primary/30 selection:text-white font-sans overflow-x-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
 
       {/* ── Hero (Split Layout) ───────────────────────── */}
       <section className="relative w-full max-w-6xl px-6 py-12 sm:py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[70vh]">
@@ -332,9 +389,9 @@ export default function Home() {
             <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">© 2026 Pintayo Studio · Built for Builders</p>
           </div>
           <div className="flex gap-8 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-500">
-            <a href="#" className="hover:text-primary transition-colors">Privacy</a>
-            <a href="#" className="hover:text-primary transition-colors">Terms</a>
-            <a href="#" className="hover:text-primary transition-colors">Support</a>
+            <a href="/privacy" className="hover:text-primary transition-colors">Privacy</a>
+            <a href="/terms" className="hover:text-primary transition-colors">Terms</a>
+            <a href="/support" className="hover:text-primary transition-colors">Support</a>
           </div>
         </div>
       </footer>
