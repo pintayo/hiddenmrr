@@ -22,6 +22,20 @@ export async function getUserProfile() {
   return data;
 }
 
+export async function getUserAnalyses() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return [];
+
+  const { data } = await supabaseAdmin
+    .from('analyses')
+    .select('id, top_project_name, completeness_score, target_niche, monetization_model, brutal_truth, is_free_scan, created_at, full_results')
+    .eq('user_id', session.user.id)
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  return data || [];
+}
+
 export async function fetchUserRepos() {
   const session = await getServerSession(authOptions);
   if (!session?.accessToken) throw new Error("Unauthorized");
@@ -59,15 +73,20 @@ export async function analyzeSelectedRepos(
   if (!session?.accessToken || !session?.user?.id) throw new Error("Unauthorized");
   if (!apiKey) throw new Error("No API key provided");
 
-  // SERVER-SIDE PAYWALL CHECK: Prevent direct server action calls from unpaid users
+  // SERVER-SIDE PAYWALL CHECK with free tier support
   const { data: profile } = await supabaseAdmin
     .from('profiles')
-    .select('has_paid')
+    .select('has_paid, free_scans_used')
     .eq('id', session.user.id)
     .single();
 
-  if (!profile?.has_paid) {
-    throw new Error("Payment required. Please complete checkout first.");
+  const isFreeEligible = !profile?.has_paid && repoFullNames.length === 1 && (profile?.free_scans_used || 0) < 1;
+
+  if (!profile?.has_paid && !isFreeEligible) {
+    if (repoFullNames.length > 1) {
+      throw new Error("Free tier allows 1 repo only. Unlock full portfolio scan (up to 20 repos) for $29.");
+    }
+    throw new Error("You've used your free scan. Unlock unlimited scans (up to 20 repos) for $29.");
   }
 
   const openai = new OpenAI({ apiKey });
@@ -119,30 +138,47 @@ export async function analyzeSelectedRepos(
     };
   }));
 
-  const systemPrompt = `You are a ruthless, highly successful indie hacker and software appraiser. The user is feeding you README.md and package.json files from their abandoned side projects. Your job is to rank every single project based on market demand, B2B potential, and monetization.
+  const systemPrompt = `You are a ruthless, highly successful indie hacker and software appraiser. The user is feeding you README.md and package.json files from their abandoned side projects. Your job is to rank every single project based on market demand, B2B potential, and monetization — then deliver a brutally actionable market readiness plan for the winner.
 
 You MUST return a RAW JSON object with the following structure:
 {
-  "winner": { 
-    "topProjectName": "String", 
-    "completenessScore": Number (1-100), 
-    "targetNiche": "String (Be ultra-specific)", 
-    "monetizationModel": "String", 
-    "brutalTruth": "String (1 sentence)", 
-    "weekendLaunchPlan": ["Step 1", "Step 2", "Step 3"] 
+  "winner": {
+    "topProjectName": "String",
+    "completenessScore": Number (1-100),
+    "targetNiche": "String (Be ultra-specific)",
+    "monetizationModel": "String",
+    "brutalTruth": "String (1 sentence)",
+    "weekendLaunchPlan": ["Step 1", "Step 2", "Step 3"]
+  },
+  "marketReadiness": {
+    "mustFix": [
+      { "item": "Short title (e.g. Add Stripe billing)", "reason": "1 sentence why this blocks launch", "effort": "hours|days|week" }
+    ],
+    "cutFromMVP": [
+      { "feature": "Feature name to skip", "reason": "1 sentence why it can wait" }
+    ],
+    "goToMarket": [
+      { "step": Number (1-based), "title": "Short action title", "detail": "2-3 sentences of specific, actionable instructions. Include concrete platforms, tools, or strategies.", "milestone": "What success looks like after this step" }
+    ]
   },
   "runnerUps": [
-    { 
-      "projectName": "String", 
-      "score": Number, 
-      "niche": "String", 
-      "shortReason": "1 sentence on why it has potential but lost to the winner." 
+    {
+      "projectName": "String",
+      "score": Number,
+      "niche": "String",
+      "shortReason": "1 sentence on why it has potential but lost to the winner."
     }
   ],
   "leaderboard": [
     { "projectName": "String", "score": Number }
   ]
 }
+
+MARKET READINESS RULES:
+- mustFix: List 3-5 CRITICAL blockers only. These are things that absolutely prevent charging money (e.g. no auth, no billing, no deploy, critical bugs). Be specific to what you see in the code/README.
+- cutFromMVP: List 3-5 features the dev should NOT build yet. Kill scope creep. Be opinionated.
+- goToMarket: List 5-7 concrete steps from current state to first paying customer. Be ultra-specific: name real platforms (Product Hunt, Indie Hackers, X/Twitter, cold email), real tools (Stripe, Vercel, Resend), and real tactics. No generic advice.
+- effort field must be one of: "hours", "days", "week"
 
 - NO markdown formatting.
 - NO backticks.
@@ -216,6 +252,12 @@ You MUST return a RAW JSON object with the following structure:
     if (!Array.isArray(result.runnerUps)) result.runnerUps = [];
     if (!Array.isArray(result.leaderboard)) result.leaderboard = [];
 
+    // Normalize marketReadiness
+    if (!result.marketReadiness) result.marketReadiness = {};
+    if (!Array.isArray(result.marketReadiness.mustFix)) result.marketReadiness.mustFix = [];
+    if (!Array.isArray(result.marketReadiness.cutFromMVP)) result.marketReadiness.cutFromMVP = [];
+    if (!Array.isArray(result.marketReadiness.goToMarket)) result.marketReadiness.goToMarket = [];
+
     // Persist to Supabase
     if (result.winner && result.winner.topProjectName) {
       const { error: saveError } = await supabaseAdmin
@@ -228,14 +270,26 @@ You MUST return a RAW JSON object with the following structure:
           monetization_model: result.winner.monetizationModel || '',
           brutal_truth: result.winner.brutalTruth || '',
           launch_plan: result.winner.weekendLaunchPlan,
-          full_results: result
+          full_results: result,
+          is_free_scan: isFreeEligible
         });
 
       if (saveError) {
         // Log only the error code/message, never the full result payload
         console.error("Supabase save error:", saveError.code, saveError.message);
       }
+
+      // Increment free scan counter for free-tier users
+      if (isFreeEligible) {
+        await supabaseAdmin
+          .from('profiles')
+          .update({ free_scans_used: (profile?.free_scans_used || 0) + 1 })
+          .eq('id', session.user.id);
+      }
     }
+
+    // Tag the result so the UI knows if this was a free scan
+    result._isFreeScan = isFreeEligible;
 
     return result;
   } catch (error: any) {

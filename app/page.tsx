@@ -1,7 +1,7 @@
 "use client";
 
 import { LoginButton } from "@/components/AuthButtons";
-import { Lock, ShieldCheck, Zap, Code, Target, Sparkles, ChevronDown, CheckCircle2, Shield, EyeOff, Search, TrendingUp } from "lucide-react";
+import { Lock, ShieldCheck, Zap, Code, Target, Sparkles, ChevronDown, CheckCircle2, Shield, EyeOff, Search, TrendingUp, AlertCircle, Scissors, Rocket, Trophy, DollarSign, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -298,6 +298,179 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Example Results Preview ──────────────────── */}
+      <section className="w-full max-w-5xl px-6 py-24 sm:py-32">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-tighter mb-6">
+            <Target className="w-4 h-4" />
+            <span>Real Output Preview</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-bold tracking-tighter text-white mb-4">See What You Get</h2>
+          <p className="text-zinc-500 text-lg max-w-xl mx-auto">Here&apos;s an actual analysis output. This is what $29 + your API key delivers.</p>
+        </div>
+
+        <div className="space-y-6">
+          {/* Winner Card Preview */}
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+            <div className="md:col-span-4 rounded-[2rem] border border-white/[0.08] bg-zinc-950 p-8 flex flex-col justify-between min-h-[240px]">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 rounded-xl bg-white/[0.03] border border-white/10 shrink-0">
+                    <Code className="w-4 h-4 text-primary" />
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-600">Primary Candidate</span>
+                </div>
+                <h3 className="text-3xl sm:text-4xl font-black tracking-tighter text-white mb-3">invoice-parser-cli</h3>
+                <p className="text-zinc-500 text-base font-medium">Fastest path to revenue in your current portfolio.</p>
+              </div>
+              <div className="flex flex-wrap gap-3 mt-6">
+                <span className="inline-flex items-center gap-2 text-xs font-bold rounded-xl border border-white/10 bg-white/[0.02] px-3 py-1.5 text-zinc-400">
+                  <Target className="w-3 h-3 text-primary" />
+                  Small Accounting Firms (1-10 employees)
+                </span>
+                <span className="inline-flex items-center gap-2 text-xs font-bold rounded-xl border border-white/10 bg-white/[0.02] px-3 py-1.5 text-zinc-400">
+                  <DollarSign className="w-3 h-3 text-emerald-500" />
+                  Usage-based SaaS ($49-199/mo)
+                </span>
+              </div>
+            </div>
+
+            <div className="md:col-span-2 rounded-[2rem] border border-white/[0.08] bg-zinc-950 p-8 flex flex-col items-center justify-center gap-3 text-center">
+              <div className="relative inline-flex items-center justify-center">
+                <svg width="130" height="130" viewBox="0 0 160 160" className="-rotate-90">
+                  <circle cx="80" cy="80" r="58" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="10" />
+                  <circle cx="80" cy="80" r="58" fill="none" className="stroke-amber-400" strokeWidth="10"
+                    strokeDasharray={`${2 * Math.PI * 58}`} strokeDashoffset={`${2 * Math.PI * 58 - (62 / 100) * 2 * Math.PI * 58}`}
+                    strokeLinecap="round" style={{ filter: "drop-shadow(0 0 12px currentColor)" }} />
+                </svg>
+                <div className="absolute flex flex-col items-center">
+                  <span className="text-5xl font-black text-white leading-none tracking-tighter">62</span>
+                  <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] mt-1">Score</span>
+                </div>
+              </div>
+              <p className="text-white font-bold text-sm tracking-tight">Strong Foundation</p>
+            </div>
+          </div>
+
+          {/* Brutal Truth Preview */}
+          <div className="rounded-[2rem] border border-white/[0.05] bg-white/[0.02] p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-6 opacity-10">
+              <Zap className="w-24 h-24 text-primary -rotate-12" />
+            </div>
+            <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              The Brutal Truth
+            </h4>
+            <p className="text-lg sm:text-xl text-zinc-300 leading-tight font-medium italic relative z-10 max-w-3xl">
+              &ldquo;You built 80% of a product that accountants would kill for, then pivoted to yet another todo app. The OCR pipeline alone is worth $2k MRR if you slap a Stripe checkout on it.&rdquo;
+            </p>
+          </div>
+
+          {/* Market Readiness Preview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Must Fix */}
+            <div className="rounded-[2rem] border border-red-500/10 bg-zinc-950 p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-red-500/10 border border-red-500/20 shrink-0">
+                  <AlertCircle className="w-4 h-4 text-red-400" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-white tracking-tight">Must Fix First</h4>
+                  <p className="text-[9px] font-black text-red-400/60 uppercase tracking-[0.2em]">Critical blockers</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { item: "Add Stripe billing", effort: "days" },
+                  { item: "Deploy to production", effort: "hours" },
+                  { item: "Add user authentication", effort: "days" },
+                ].map((fix, i) => (
+                  <div key={i} className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] flex items-center justify-between">
+                    <span className="text-xs font-bold text-zinc-300">{fix.item}</span>
+                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border
+                      ${fix.effort === 'hours' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'}`}>
+                      <Clock className="w-2.5 h-2.5" />{fix.effort}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Cut From MVP */}
+            <div className="rounded-[2rem] border border-amber-500/10 bg-zinc-950 p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 shrink-0">
+                  <Scissors className="w-4 h-4 text-amber-400" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-white tracking-tight">Cut From MVP</h4>
+                  <p className="text-[9px] font-black text-amber-400/60 uppercase tracking-[0.2em]">Skip these — ship faster</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {[
+                  "Multi-language OCR support",
+                  "Team collaboration features",
+                  "Custom PDF template builder",
+                ].map((feature, i) => (
+                  <div key={i} className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] flex items-center gap-2">
+                    <Scissors className="w-3 h-3 text-amber-400 shrink-0" />
+                    <span className="text-xs font-bold text-zinc-400 line-through decoration-amber-500/40">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Go-To-Market Preview (first 3 steps) */}
+          <div className="rounded-[2.5rem] border border-white/[0.08] bg-zinc-950 p-8 space-y-6">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xl font-bold text-white tracking-tighter flex items-center gap-3">
+                <Rocket className="w-6 h-6 text-primary" />
+                Go-To-Market Roadmap
+              </h4>
+              <div className="px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-[9px] font-black uppercase tracking-[0.2em] text-primary">
+                Code → First Customer
+              </div>
+            </div>
+
+            <div className="relative space-y-0">
+              <div className="absolute left-[15px] top-4 bottom-4 w-px bg-gradient-to-b from-primary/40 via-primary/20 to-transparent hidden sm:block" />
+              {[
+                { step: "01", title: "Deploy MVP on Vercel", detail: "Strip the CLI interface, wrap it in a Next.js API route with file upload. Deploy to Vercel with a custom domain.", milestone: "Live URL accepting invoice uploads" },
+                { step: "02", title: "Add Stripe Checkout", detail: "Implement usage-based pricing: $0.10/invoice processed. Free tier: 10 invoices/month to hook users.", milestone: "First test payment received" },
+                { step: "03", title: "Launch on Indie Hackers + HN", detail: "Post a Show HN with a demo video. Cross-post to r/smallbusiness and accounting Twitter.", milestone: "50 signups in first week" },
+              ].map((gtm, i) => (
+                <div key={i} className="relative flex gap-5 group">
+                  <div className="shrink-0 relative z-10">
+                    <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center text-[10px] font-black text-white shadow-xl">
+                      {gtm.step}
+                    </div>
+                  </div>
+                  <div className="pb-6 flex-1 space-y-2">
+                    <h5 className="text-base font-bold text-white tracking-tight">{gtm.title}</h5>
+                    <p className="text-xs text-zinc-400 leading-relaxed">{gtm.detail}</p>
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-400/70">
+                      <Trophy className="w-3 h-3" />
+                      <span>{gtm.milestone}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Blur fade + CTA */}
+            <div className="relative -mt-4">
+              <div className="h-20 bg-gradient-to-t from-zinc-950 to-transparent" />
+              <div className="text-center -mt-6">
+                <p className="text-xs text-zinc-500 font-bold mb-4">+ 4 more steps in the full report</p>
+                <LoginButton />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Features Bento ────────────────────────────── */}
       <section className="w-full max-w-6xl px-6 py-24 sm:py-32 bg-white/[0.01] rounded-[3rem] border border-white/5">
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
@@ -379,46 +552,81 @@ export default function Home() {
           <span>Simple Pricing</span>
         </div>
         <h2 className="text-3xl sm:text-5xl font-bold tracking-tighter text-white mb-4">
-          One report. One price.<br/>No subscription. Ever.
+          Try free. Then go all-in.
         </h2>
         <p className="text-zinc-500 text-lg mb-16 max-w-md mx-auto">
-          Pay once and unlock AI appraisals for every repo you will ever abandon.
+          Scan 1 repo free. Pay once to unlock your entire portfolio forever.
         </p>
 
-        {/* Pricing card */}
-        <div className="relative rounded-[2.5rem] border border-primary/25 bg-zinc-900/60 p-10 text-left max-w-md mx-auto shadow-[0_0_80px_-20px_rgba(153,102,255,0.25)]">
-          <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
-          <div className="relative z-10">
-            <div className="flex items-end gap-3 mb-1">
-              <span className="text-6xl font-black text-white tracking-tighter">$29</span>
-              <span className="text-zinc-500 text-sm font-medium pb-3">USD · one-time</span>
+        {/* Pricing cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          {/* Free tier */}
+          <div className="relative rounded-[2.5rem] border border-white/10 bg-zinc-900/40 p-8 text-left">
+            <div className="relative z-10">
+              <div className="flex items-end gap-3 mb-1">
+                <span className="text-5xl font-black text-white tracking-tighter">Free</span>
+              </div>
+              <p className="text-zinc-600 text-sm mb-8">Try it on 1 repo. No credit card.</p>
+
+              <ul className="space-y-3 mb-8">
+                {[
+                  'Analyze 1 repository',
+                  'Full Market Readiness Plan',
+                  'Completeness score + niche ID',
+                  'Go-to-market roadmap',
+                  'Brutal Truth verdict',
+                ].map((feature) => (
+                  <li key={feature} className="flex items-center gap-3 text-sm text-zinc-400">
+                    <CheckCircle2 className="w-4 h-4 text-zinc-600 shrink-0" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="flex justify-center">
+                <LoginButton />
+              </div>
+
+              <p className="text-center text-zinc-700 text-[10px] font-black uppercase tracking-widest mt-5">
+                GitHub OAuth · BYOK · 1 Free Scan
+              </p>
             </div>
-            <p className="text-zinc-600 text-sm mb-10">No monthly fees. No usage caps. No upsells.</p>
+          </div>
 
-            <ul className="space-y-4 mb-10">
-              {[
-                'AI appraisal across all your GitHub repos',
-                'Winner selection with B2B niche identification',
-                'Revenue potential & market demand score',
-                'GTM strategy tailored to your stack',
-                '48-hour weekend launch blueprint',
-                'Full Graveyard Leaderboard — every repo ranked',
-                'Lifetime access — pay once, use forever',
-              ].map((feature) => (
-                <li key={feature} className="flex items-center gap-3 text-sm text-zinc-300">
-                  <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                  {feature}
-                </li>
-              ))}
-            </ul>
+          {/* Pro tier */}
+          <div className="relative rounded-[2.5rem] border border-primary/25 bg-zinc-900/60 p-8 text-left shadow-[0_0_80px_-20px_rgba(153,102,255,0.25)]">
+            <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-end gap-3 mb-1">
+                <span className="text-5xl font-black text-white tracking-tighter">$29</span>
+                <span className="text-zinc-500 text-sm font-medium pb-2">one-time</span>
+              </div>
+              <p className="text-zinc-600 text-sm mb-8">Full portfolio scan. Lifetime access.</p>
 
-            <div className="flex justify-center">
-              <LoginButton />
+              <ul className="space-y-3 mb-8">
+                {[
+                  'Scan up to 20 repos at once',
+                  'Full Market Readiness Plan',
+                  'Winner + runner-ups + leaderboard',
+                  'Go-to-market roadmap',
+                  'Unlimited re-scans forever',
+                  'Scan history dashboard',
+                ].map((feature) => (
+                  <li key={feature} className="flex items-center gap-3 text-sm text-zinc-300">
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="flex justify-center">
+                <LoginButton />
+              </div>
+
+              <p className="text-center text-zinc-600 text-[10px] font-black uppercase tracking-widest mt-5">
+                GitHub OAuth · BYOK Privacy · Instant Access
+              </p>
             </div>
-
-            <p className="text-center text-zinc-600 text-[10px] font-black uppercase tracking-widest mt-6">
-              GitHub OAuth · BYOK Privacy · Instant Access
-            </p>
           </div>
         </div>
       </section>
@@ -427,9 +635,9 @@ export default function Home() {
       <section className="w-full max-w-3xl px-6 py-24 sm:py-32">
         <h2 className="text-3xl font-bold text-white mb-10 tracking-tight text-center">Frequently Asked</h2>
         <div className="space-y-2">
-          <FAQItem 
-            question="Why a $29 one-time fee?" 
-            answer="Subscription models are for maintenance. We are a catalyst. Pay once, use it for every ghost repo you start this year. No hidden costs beyond your own LLM usage." 
+          <FAQItem
+            question="Why a $29 one-time fee?"
+            answer="Try it free first — scan 1 repo with the full Market Readiness Plan, no payment required. Love it? $29 unlocks your entire portfolio (up to 20 repos per scan) forever. No subscriptions, no hidden costs beyond your own LLM usage."
           />
           <FAQItem 
             question="What repositories can you analyze?" 
@@ -445,7 +653,7 @@ export default function Home() {
           />
           <FAQItem
             question="What does the analysis report include?"
-            answer="You receive a winner selection (the repo with the highest revenue potential), a Completeness Score, a Brutal Truth AI verdict, a 3-phase Weekend Launch Blueprint, a list of high-potential runner-up projects, and a ranked Graveyard Leaderboard covering every repo you scanned."
+            answer="You receive a winner selection, Completeness Score, Brutal Truth AI verdict, a full Market Readiness Plan (Must Fix First blockers with effort estimates, Cut From MVP list, and a step-by-step Go-To-Market Roadmap from code to first paying customer), a Weekend Launch Blueprint, runner-ups, and a ranked Graveyard Leaderboard."
           />
           <FAQItem
             question="How long does an analysis take?"
@@ -460,7 +668,7 @@ export default function Home() {
           Your best idea is already written.<br/>You just abandoned it.
         </h2>
         <p className="text-zinc-500 text-lg mb-10 max-w-sm mx-auto">
-          $29. One scan. Find the project worth building this weekend.
+          Scan 1 repo free. Find the project worth building this weekend.
         </p>
         <div className="flex flex-col items-center gap-4">
           <LoginButton />
