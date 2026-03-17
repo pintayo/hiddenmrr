@@ -39,7 +39,7 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <ClientDashboard hasPaid={profile?.has_paid || false} userId={session.user.id} />
+      <ClientDashboard hasPaid={profile?.has_paid || false} userId={session.user.id} freeScansUsed={profile?.free_scans_used || 0} />
     </div>
   );
 }

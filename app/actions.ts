@@ -22,6 +22,20 @@ export async function getUserProfile() {
   return data;
 }
 
+export async function getUserAnalyses() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return [];
+
+  const { data } = await supabaseAdmin
+    .from('analyses')
+    .select('id, top_project_name, completeness_score, target_niche, monetization_model, brutal_truth, is_free_scan, created_at, full_results')
+    .eq('user_id', session.user.id)
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  return data || [];
+}
+
 export async function fetchUserRepos() {
   const session = await getServerSession(authOptions);
   if (!session?.accessToken) throw new Error("Unauthorized");
@@ -59,15 +73,20 @@ export async function analyzeSelectedRepos(
   if (!session?.accessToken || !session?.user?.id) throw new Error("Unauthorized");
   if (!apiKey) throw new Error("No API key provided");
 
-  // SERVER-SIDE PAYWALL CHECK: Prevent direct server action calls from unpaid users
+  // SERVER-SIDE PAYWALL CHECK with free tier support
   const { data: profile } = await supabaseAdmin
     .from('profiles')
-    .select('has_paid')
+    .select('has_paid, free_scans_used')
     .eq('id', session.user.id)
     .single();
 
-  if (!profile?.has_paid) {
-    throw new Error("Payment required. Please complete checkout first.");
+  const isFreeEligible = !profile?.has_paid && repoFullNames.length === 1 && (profile?.free_scans_used || 0) < 1;
+
+  if (!profile?.has_paid && !isFreeEligible) {
+    if (repoFullNames.length > 1) {
+      throw new Error("Free tier allows 1 repo only. Unlock full portfolio scan (up to 20 repos) for $29.");
+    }
+    throw new Error("You've used your free scan. Unlock unlimited scans (up to 20 repos) for $29.");
   }
 
   const openai = new OpenAI({ apiKey });
@@ -251,14 +270,26 @@ MARKET READINESS RULES:
           monetization_model: result.winner.monetizationModel || '',
           brutal_truth: result.winner.brutalTruth || '',
           launch_plan: result.winner.weekendLaunchPlan,
-          full_results: result
+          full_results: result,
+          is_free_scan: isFreeEligible
         });
 
       if (saveError) {
         // Log only the error code/message, never the full result payload
         console.error("Supabase save error:", saveError.code, saveError.message);
       }
+
+      // Increment free scan counter for free-tier users
+      if (isFreeEligible) {
+        await supabaseAdmin
+          .from('profiles')
+          .update({ free_scans_used: (profile?.free_scans_used || 0) + 1 })
+          .eq('id', session.user.id);
+      }
     }
+
+    // Tag the result so the UI knows if this was a free scan
+    result._isFreeScan = isFreeEligible;
 
     return result;
   } catch (error: any) {

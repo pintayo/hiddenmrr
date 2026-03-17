@@ -5,9 +5,9 @@ import {
   Lock, Key, Loader2, Sparkles, Code, CheckCircle,
   Zap, Target, DollarSign, RotateCcw, AlertTriangle,
   ChevronDown, HelpCircle, AlertCircle, Scissors, Rocket,
-  Clock, ArrowRight, Trophy
+  Clock, ArrowRight, Trophy, History, Crown
 } from "lucide-react";
-import { fetchUserRepos, analyzeSelectedRepos } from "@/app/actions";
+import { fetchUserRepos, analyzeSelectedRepos, getUserAnalyses } from "@/app/actions";
 import { CostEstimator } from "@/components/CostEstimator";
 
 // ── Score Ring (CSS only via SVG) ──────────────────────────
@@ -110,7 +110,7 @@ const modelOptions: Record<string, { label: string; value: string; recommended?:
   ],
 };
 
-export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean; userId: string }) {
+export default function ClientDashboard({ hasPaid, userId, freeScansUsed }: { hasPaid: boolean; userId: string; freeScansUsed: number }) {
   const [apiKey, setApiKey] = useState("");
   const [provider, setProvider] = useState<'openai' | 'anthropic' | 'google'>("openai");
   const [model, setModel] = useState("gpt-4o-mini");
@@ -120,10 +120,16 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
   const [repos, setRepos] = useState<any[]>([]);
   const [results, setResults] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [pastAnalyses, setPastAnalyses] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   const [selectedRepos, setSelectedRepos] = useState<string[]>([]);
   const [isFetchingRepos, setIsFetchingRepos] = useState(false);
   const [step, setStep] = useState<'config' | 'selection' | 'results'>('config');
+
+  const canFreeScan = !hasPaid && freeScansUsed < 1;
+  const maxRepos = hasPaid ? 20 : 1;
 
   // ── Sync with LocalStorage ──────────────────────────
   useEffect(() => {
@@ -195,7 +201,8 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
     return () => clearInterval(interval);
   }, [isAnalyzing]);
 
-  if (!hasPaid) return <Paywall userId={userId} />;
+  // Show hard paywall only if unpaid AND free scan already used
+  if (!hasPaid && freeScansUsed >= 1 && step === 'config' && !results) return <Paywall userId={userId} />;
 
   const handleFetchRepos = async () => {
     if (!apiKey) { 
@@ -207,8 +214,8 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
     try {
       const fetchedRepos = await fetchUserRepos();
       setRepos(fetchedRepos || []);
-      // Pre-select top 20
-      setSelectedRepos(fetchedRepos.slice(0, 20).map((r: any) => r.full_name));
+      // Pre-select repos up to limit
+      setSelectedRepos(fetchedRepos.slice(0, maxRepos).map((r: any) => r.full_name));
       setStep('selection');
     } catch (err: any) {
       setError(err.message || "Failed to fetch repositories.");
@@ -245,8 +252,11 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
         setError(null);
         return prev.filter(r => r !== fullName);
       }
-      if (prev.length >= 20) {
-        setError("Maximum 20 repos per scan to ensure deep AI analysis.");
+      if (prev.length >= maxRepos) {
+        setError(hasPaid
+          ? "Maximum 20 repos per scan to ensure deep AI analysis."
+          : "Free tier: 1 repo per scan. Upgrade to analyze up to 20."
+        );
         return prev;
       }
       setError(null);
@@ -254,9 +264,102 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
     });
   };
 
+  const handleLoadHistory = async () => {
+    setIsLoadingHistory(true);
+    try {
+      const analyses = await getUserAnalyses();
+      setPastAnalyses(analyses);
+      setShowHistory(true);
+    } catch {
+      setError("Failed to load scan history.");
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
+  const handleViewPastAnalysis = (analysis: any) => {
+    if (analysis.full_results) {
+      setResults(analysis.full_results);
+      setStep('results');
+      setShowHistory(false);
+    }
+  };
+
 
   return (
     <div className="space-y-12 pb-20">
+
+      {/* ── SCAN HISTORY ────────────────────────────────── */}
+      {step === 'config' && (
+        <div className="max-w-xl mx-auto flex justify-end">
+          <button
+            onClick={handleLoadHistory}
+            disabled={isLoadingHistory}
+            className="flex items-center gap-2 text-zinc-500 hover:text-zinc-200 text-xs font-bold uppercase tracking-[0.15em]
+                       px-4 py-2 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all"
+          >
+            {isLoadingHistory
+              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              : <History className="w-3.5 h-3.5" />
+            }
+            Past Scans
+          </button>
+        </div>
+      )}
+
+      {/* ── HISTORY PANEL ────────────────────────────────── */}
+      {showHistory && (
+        <div className="max-w-xl mx-auto rounded-3xl border border-white/[0.08] bg-zinc-950 p-8 shadow-3xl space-y-6 animate-fade-in">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-3">
+              <History className="w-5 h-5 text-zinc-400" />
+              Scan History
+            </h3>
+            <button
+              onClick={() => setShowHistory(false)}
+              className="text-[10px] font-black text-zinc-600 uppercase tracking-widest hover:text-zinc-300 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+
+          {pastAnalyses.length === 0 ? (
+            <p className="text-sm text-zinc-600 text-center py-8">No scans yet. Run your first analysis below.</p>
+          ) : (
+            <div className="space-y-3 max-h-[400px] overflow-y-auto">
+              {pastAnalyses.map((analysis) => (
+                <button
+                  key={analysis.id}
+                  onClick={() => handleViewPastAnalysis(analysis)}
+                  className="w-full text-left p-4 rounded-xl border border-white/[0.05] bg-white/[0.02] hover:border-white/15 transition-all group space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-bold text-white group-hover:text-primary transition-colors">
+                      {analysis.top_project_name}
+                    </h4>
+                    <div className="flex items-center gap-2">
+                      {analysis.is_free_scan && (
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-widest bg-primary/10 text-primary border border-primary/20">Free</span>
+                      )}
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-black border tracking-widest
+                        ${(analysis.completeness_score || 0) >= 70 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                          : (analysis.completeness_score || 0) >= 40 ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                          : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                        {analysis.completeness_score}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 text-[10px] text-zinc-600">
+                    <span>{analysis.target_niche}</span>
+                    <span>·</span>
+                    <span>{new Date(analysis.created_at).toLocaleDateString()}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── STEP 1: CONFIG ────────────────────────────────── */}
       {step === 'config' && (
@@ -379,13 +482,25 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
               </div>
               <div>
                 <h2 className="text-lg font-bold text-white tracking-tight">Step 2: Selection Gate</h2>
-                <p className="text-sm text-zinc-500 mt-1">Select up to 20 repos for deep analysis.</p>
+                <p className="text-sm text-zinc-500 mt-1">
+                  {hasPaid ? "Select up to 20 repos for deep analysis." : "Pick your best repo for a free analysis."}
+                </p>
               </div>
             </div>
             <div className="px-3 py-1 rounded-lg bg-white/[0.02] border border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-500">
-               {selectedRepos.length} / 20 Selected
+               {selectedRepos.length} / {maxRepos} Selected
             </div>
           </div>
+
+          {!hasPaid && (
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-primary shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-bold text-white">Free Analysis — Pick Your Best Repo</p>
+                <p className="text-xs text-zinc-400 mt-0.5">Get the full Market Readiness Plan for 1 repo. Upgrade to scan your entire portfolio.</p>
+              </div>
+            </div>
+          )}
 
           <div className="max-h-[400px] overflow-y-auto pr-2 space-y-2 custom-scrollbar">
             {repos.map((repo) => (
@@ -758,10 +873,44 @@ export default function ClientDashboard({ hasPaid, userId }: { hasPaid: boolean;
             </div>
           )}
 
+          {/* Upgrade CTA for free scan users */}
+          {results._isFreeScan && (
+            <div className="rounded-[2.5rem] border border-primary/20 bg-gradient-to-b from-primary/5 to-transparent p-8 sm:p-12 text-center space-y-6 animate-fade-in-up">
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
+                <Crown className="w-7 h-7 text-primary" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl sm:text-3xl font-black tracking-tighter text-white">
+                  Imagine this for all {repos.length > 0 ? repos.length : 'your'} repos
+                </h3>
+                <p className="text-zinc-400 max-w-lg mx-auto text-base leading-relaxed">
+                  You just saw what HiddenMRR can do with 1 repo. Unlock the full portfolio scan to find your highest-potential project across all your side projects — ranked, scored, and with a complete go-to-market plan.
+                </p>
+              </div>
+              {(() => {
+                const checkoutUrl = process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_URL;
+                const isAvailable = !!checkoutUrl && checkoutUrl !== "undefined";
+                return isAvailable ? (
+                  <a
+                    href={`${checkoutUrl}?checkout[custom][user_id]=${userId}`}
+                    className="inline-flex items-center justify-center gap-3 rounded-2xl px-10 py-5 text-[15px] font-bold text-white
+                               bg-primary/10 border border-primary/30
+                               hover:bg-primary/20 hover:border-primary/50 hover:-translate-y-1
+                               active:translate-y-0 shadow-2xl transition-all duration-300 group"
+                  >
+                    <Sparkles className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+                    Unlock Full Portfolio Scan — $29
+                  </a>
+                ) : null;
+              })()}
+              <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold">One-time payment · Up to 20 repos · Lifetime access</p>
+            </div>
+          )}
+
           {/* Reset */}
           <div className="flex justify-center pt-6">
             <button
-              onClick={() => { setStep('config'); setResults(null); setApiKey(""); }}
+              onClick={() => { setStep('config'); setResults(null); }}
               className="group flex items-center gap-3 text-zinc-600 hover:text-zinc-200 text-xs font-bold uppercase tracking-[0.2em]
                          px-8 py-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all"
             >
