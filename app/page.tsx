@@ -72,10 +72,10 @@ export default function Home() {
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "Why a $29 one-time fee?",
+          "name": "Is the free scan actually free?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Subscription models are for maintenance. We are a catalyst. Pay once, use it for every ghost repo you start this year. No hidden costs beyond your own LLM usage.",
+            "text": "Yes, 100% free. No API key, no credit card. Connect GitHub, pick a repo, get a full Market Readiness Plan. We cover the AI cost for your first scan.",
           },
         },
         {
@@ -88,10 +88,10 @@ export default function Home() {
         },
         {
           "@type": "Question",
-          "name": "How does BYOK work?",
+          "name": "Do I need an API key?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "You provide your OpenAI API key in the dashboard. We use it to perform the analysis on your behalf. This keeps HiddenMRR cheap and ensures you control your AI costs.",
+            "text": "Not for the free scan. For paid scans, you can optionally bring your own API key (BYOK) from OpenAI, Anthropic, or Google to choose your preferred AI model.",
           },
         },
         {
@@ -153,8 +153,8 @@ export default function Home() {
           </h1>
 
           <p className="text-zinc-400 text-lg leading-relaxed max-w-md">
-            <span className="text-white font-black tracking-tighter italic">HiddenMRR</span> scans your abandoned projects and identifies the highest-margin 
-            B2B opportunities hidden in your logic.
+            You already wrote the code. <span className="text-white font-black tracking-tighter italic">HiddenMRR</span> tells you which repo to ship,
+            who will pay for it, and exactly how to get your first customer this weekend.
           </p>
 
           <div className="flex flex-col items-start gap-6">
@@ -162,10 +162,10 @@ export default function Home() {
 
             {/* Trust pill */}
             <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.02] backdrop-blur-xl px-4 py-2 text-[10px] text-zinc-500 font-bold tracking-widest uppercase">
-              <Lock className="w-3.5 h-3.5" />
-              <span>GitHub OAuth</span>
+              <Zap className="w-3.5 h-3.5 text-primary" />
+              <span>Free scan · No API key</span>
               <span className="text-zinc-800 mx-1">|</span>
-              <span>BYOK Privacy</span>
+              <span>30 seconds to results</span>
             </div>
           </div>
         </motion.div>
@@ -306,7 +306,7 @@ export default function Home() {
             <span>Real Output Preview</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-bold tracking-tighter text-white mb-4">See What You Get</h2>
-          <p className="text-zinc-500 text-lg max-w-xl mx-auto">Here&apos;s an actual analysis output. This is what $29 + your API key delivers.</p>
+          <p className="text-zinc-500 text-lg max-w-xl mx-auto">Not a mockup — this is real AI output. Your free scan delivers all of this.</p>
         </div>
 
         <div className="space-y-6">
@@ -525,9 +525,9 @@ export default function Home() {
         </div>
         <h2 className="text-3xl font-bold text-white tracking-tight mb-4">Your Code is Yours. Period.</h2>
         <p className="text-zinc-400 text-lg leading-relaxed max-w-2xl mx-auto mb-12">
-          <span className="text-white font-black tracking-tighter italic">HiddenMRR</span> is built for indie hackers who value their IP. We never store your code, 
-          we only read metadata via secure GitHub API calls, and your API Key (BYOK) powers 
-          the analysis directly.
+          <span className="text-white font-black tracking-tighter italic">HiddenMRR</span> is built for indie hackers who value their IP. We never store your code —
+          we only read metadata via secure GitHub API calls. Your free scan runs on our servers;
+          paid scans can optionally use your own API key for full control.
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 text-center">
           <div className="space-y-2">
@@ -546,27 +546,27 @@ export default function Home() {
       </section>
 
       {/* ── Pricing ───────────────────────────────────── */}
-      <section className="w-full max-w-3xl px-6 py-24 sm:py-32 text-center">
+      <section className="w-full max-w-4xl px-6 py-24 sm:py-32 text-center">
         <div className="inline-flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-tighter mb-6">
           <Sparkles className="w-4 h-4" />
           <span>Simple Pricing</span>
         </div>
         <h2 className="text-3xl sm:text-5xl font-bold tracking-tighter text-white mb-4">
-          Try free. Then go all-in.
+          Free scan. No API key needed.
         </h2>
         <p className="text-zinc-500 text-lg mb-16 max-w-md mx-auto">
-          Scan 1 repo free. Pay once to unlock your entire portfolio forever.
+          See if your code has hidden revenue. Then decide.
         </p>
 
         {/* Pricing cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {/* Free tier */}
           <div className="relative rounded-[2.5rem] border border-white/10 bg-zinc-900/40 p-8 text-left">
             <div className="relative z-10">
               <div className="flex items-end gap-3 mb-1">
                 <span className="text-5xl font-black text-white tracking-tighter">Free</span>
               </div>
-              <p className="text-zinc-600 text-sm mb-8">Try it on 1 repo. No credit card.</p>
+              <p className="text-zinc-600 text-sm mb-8">No API key. No credit card.</p>
 
               <ul className="space-y-3 mb-8">
                 {[
@@ -588,7 +588,41 @@ export default function Home() {
               </div>
 
               <p className="text-center text-zinc-700 text-[10px] font-black uppercase tracking-widest mt-5">
-                GitHub OAuth · BYOK · 1 Free Scan
+                Just connect GitHub · 30 seconds
+              </p>
+            </div>
+          </div>
+
+          {/* $9 Single Scan */}
+          <div className="relative rounded-[2.5rem] border border-white/10 bg-zinc-900/50 p-8 text-left">
+            <div className="relative z-10">
+              <div className="flex items-end gap-3 mb-1">
+                <span className="text-5xl font-black text-white tracking-tighter">$9</span>
+                <span className="text-zinc-500 text-sm font-medium pb-2">per scan</span>
+              </div>
+              <p className="text-zinc-600 text-sm mb-8">One deep scan. Full blueprint.</p>
+
+              <ul className="space-y-3 mb-8">
+                {[
+                  'Everything in Free',
+                  'Use your own AI key (BYOK)',
+                  'Choose AI provider & model',
+                  'Full Market Readiness Plan',
+                  'Saved to scan history',
+                ].map((feature) => (
+                  <li key={feature} className="flex items-center gap-3 text-sm text-zinc-300">
+                    <CheckCircle2 className="w-4 h-4 text-zinc-400 shrink-0" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="flex justify-center">
+                <LoginButton />
+              </div>
+
+              <p className="text-center text-zinc-600 text-[10px] font-black uppercase tracking-widest mt-5">
+                Pay once · Scan once · Keep forever
               </p>
             </div>
           </div>
@@ -596,21 +630,22 @@ export default function Home() {
           {/* Pro tier */}
           <div className="relative rounded-[2.5rem] border border-primary/25 bg-zinc-900/60 p-8 text-left shadow-[0_0_80px_-20px_rgba(153,102,255,0.25)]">
             <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
+            <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-primary text-black text-[9px] font-black uppercase tracking-widest z-20">Best Value</div>
             <div className="relative z-10">
               <div className="flex items-end gap-3 mb-1">
                 <span className="text-5xl font-black text-white tracking-tighter">$29</span>
-                <span className="text-zinc-500 text-sm font-medium pb-2">one-time</span>
+                <span className="text-zinc-500 text-sm font-medium pb-2">lifetime</span>
               </div>
-              <p className="text-zinc-600 text-sm mb-8">Full portfolio scan. Lifetime access.</p>
+              <p className="text-zinc-600 text-sm mb-8">Unlimited scans. Full portfolio.</p>
 
               <ul className="space-y-3 mb-8">
                 {[
+                  'Everything in Single Scan',
                   'Scan up to 20 repos at once',
-                  'Full Market Readiness Plan',
-                  'Winner + runner-ups + leaderboard',
-                  'Go-to-market roadmap',
+                  'Portfolio comparison & ranking',
                   'Unlimited re-scans forever',
-                  'Scan history dashboard',
+                  'Full scan history dashboard',
+                  'Winner + runner-ups + leaderboard',
                 ].map((feature) => (
                   <li key={feature} className="flex items-center gap-3 text-sm text-zinc-300">
                     <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
@@ -624,7 +659,7 @@ export default function Home() {
               </div>
 
               <p className="text-center text-zinc-600 text-[10px] font-black uppercase tracking-widest mt-5">
-                GitHub OAuth · BYOK Privacy · Instant Access
+                Most popular · Instant access
               </p>
             </div>
           </div>
@@ -636,16 +671,20 @@ export default function Home() {
         <h2 className="text-3xl font-bold text-white mb-10 tracking-tight text-center">Frequently Asked</h2>
         <div className="space-y-2">
           <FAQItem
-            question="Why a $29 one-time fee?"
-            answer="Try it free first — scan 1 repo with the full Market Readiness Plan, no payment required. Love it? $29 unlocks your entire portfolio (up to 20 repos per scan) forever. No subscriptions, no hidden costs beyond your own LLM usage."
+            question="Is the free scan actually free?"
+            answer="Yes, 100% free. No API key, no credit card. Connect GitHub, pick a repo, get a full Market Readiness Plan with go-to-market roadmap, brutally honest scoring, and actionable next steps. We cover the AI cost for your first scan."
           />
-          <FAQItem 
-            question="What repositories can you analyze?" 
-            answer="If it's on GitHub, we can scan it. Private or public. We focus on Node.js/Python/Next.js/React projects as they have the clearest SaaS monetization paths." 
+          <FAQItem
+            question="Why $9 and $29?"
+            answer="$9 gets you one more deep scan — perfect if you know which repo you want analyzed. $29 unlocks unlimited scans forever: compare up to 20 repos at once, find your best project, and rescan as your code evolves. No subscriptions."
           />
-          <FAQItem 
-            question="How does BYOK work?" 
-            answer="You provide your OpenAI API key in the dashboard. We use it to perform the analysis on your behalf. This keeps HiddenMRR cheap and ensures you control your AI costs." 
+          <FAQItem
+            question="What repositories can you analyze?"
+            answer="If it's on GitHub, we can scan it. Private or public. We focus on Node.js/Python/Next.js/React projects as they have the clearest SaaS monetization paths."
+          />
+          <FAQItem
+            question="Do I need an API key?"
+            answer="Not for the free scan — we handle it. For paid scans, you can optionally bring your own API key (BYOK) from OpenAI, Anthropic, or Google to choose your preferred AI model. This gives you full control over model quality and cost."
           />
           <FAQItem
             question="Is my code safe?"
@@ -653,11 +692,7 @@ export default function Home() {
           />
           <FAQItem
             question="What does the analysis report include?"
-            answer="You receive a winner selection, Completeness Score, Brutal Truth AI verdict, a full Market Readiness Plan (Must Fix First blockers with effort estimates, Cut From MVP list, and a step-by-step Go-To-Market Roadmap from code to first paying customer), a Weekend Launch Blueprint, runner-ups, and a ranked Graveyard Leaderboard."
-          />
-          <FAQItem
-            question="How long does an analysis take?"
-            answer="Usually 2–5 minutes depending on the number of repos selected and the AI model you choose. GPT-4o Mini and Gemini Flash are the fastest options. You can scan up to 20 repositories per run."
+            answer="A winner selection, Completeness Score, Brutal Truth AI verdict, Must Fix First blockers with effort estimates, Cut From MVP list, step-by-step Go-To-Market Roadmap to your first paying customer, Weekend Launch Blueprint, runner-ups with reasoning, and a ranked Graveyard Leaderboard."
           />
         </div>
       </section>
@@ -668,12 +703,12 @@ export default function Home() {
           Your best idea is already written.<br/>You just abandoned it.
         </h2>
         <p className="text-zinc-500 text-lg mb-10 max-w-sm mx-auto">
-          Scan 1 repo free. Find the project worth building this weekend.
+          Free scan. No API key. Find out which repo is worth shipping this weekend.
         </p>
         <div className="flex flex-col items-center gap-4">
           <LoginButton />
           <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">
-            No subscription · Instant access · Cancel never needed
+            Free · No API key · 30 seconds to your blueprint
           </p>
         </div>
       </section>

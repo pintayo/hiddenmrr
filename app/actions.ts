@@ -71,25 +71,43 @@ export async function analyzeSelectedRepos(
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.accessToken || !session?.user?.id) throw new Error("Unauthorized");
-  if (!apiKey) throw new Error("No API key provided");
 
   // SERVER-SIDE PAYWALL CHECK with free tier support
   const { data: profile } = await supabaseAdmin
     .from('profiles')
-    .select('has_paid, free_scans_used')
+    .select('has_paid, free_scans_used, single_scans_purchased')
     .eq('id', session.user.id)
     .single();
 
-  const isFreeEligible = !profile?.has_paid && repoFullNames.length === 1 && (profile?.free_scans_used || 0) < 1;
+  const freeScansUsed = profile?.free_scans_used || 0;
+  const singleScans = profile?.single_scans_purchased || 0;
+  const isFreeEligible = !profile?.has_paid && repoFullNames.length === 1 && freeScansUsed < 1;
+  const isSingleScanEligible = !profile?.has_paid && repoFullNames.length === 1 && singleScans > freeScansUsed;
 
-  if (!profile?.has_paid && !isFreeEligible) {
+  if (!profile?.has_paid && !isFreeEligible && !isSingleScanEligible) {
     if (repoFullNames.length > 1) {
-      throw new Error("Free tier allows 1 repo only. Unlock full portfolio scan (up to 20 repos) for $29.");
+      throw new Error("Multi-repo scan requires the Pro plan ($29). Or grab a single deep scan for $9.");
     }
-    throw new Error("You've used your free scan. Unlock unlimited scans (up to 20 repos) for $29.");
+    throw new Error("You've used your free scan. Grab another deep scan for $9, or go Pro for $29 (unlimited).");
   }
 
-  const openai = new OpenAI({ apiKey });
+  // For free scans, use the server-side managed API key (no BYOK friction)
+  const useServerKey = isFreeEligible && !apiKey;
+  const serverApiKey = process.env.OPENAI_API_KEY;
+
+  let effectiveApiKey = apiKey;
+  let effectiveProvider = provider;
+  let effectiveModel = model;
+
+  if (useServerKey) {
+    if (!serverApiKey) throw new Error("Free scan is temporarily unavailable. Please provide your own API key.");
+    effectiveApiKey = serverApiKey;
+    effectiveProvider = 'openai';
+    effectiveModel = 'gpt-4o-mini';
+  }
+
+  if (!effectiveApiKey) throw new Error("No API key provided. Enter your API key or use your free scan.");
+
 
   const reposData = await Promise.all(repoFullNames.map(async (fullName) => {
     // Fetch critical files: README and package.json/requirements.txt
@@ -193,10 +211,10 @@ MARKET READINESS RULES:
   let rawContent = "";
 
   try {
-    if (provider === 'openai') {
-      const openai = new OpenAI({ apiKey });
+    if (effectiveProvider === 'openai') {
+      const openai = new OpenAI({ apiKey: effectiveApiKey });
       const completion = await openai.chat.completions.create({
-        model: model,
+        model: effectiveModel,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
@@ -205,10 +223,10 @@ MARKET READINESS RULES:
       });
       rawContent = completion.choices[0].message.content || '{}';
     } 
-    else if (provider === 'anthropic') {
-      const anthropic = new Anthropic({ apiKey });
+    else if (effectiveProvider === 'anthropic') {
+      const anthropic = new Anthropic({ apiKey: effectiveApiKey });
       const message = await anthropic.messages.create({
-        model: model,
+        model: effectiveModel,
         max_tokens: 4096,
         system: systemPrompt,
         messages: [{ role: "user", content: userPrompt }],
@@ -221,9 +239,9 @@ MARKET READINESS RULES:
         throw new Error("Anthropic returned an empty response. Please try again.");
       }
     } 
-    else if (provider === 'google') {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const googleModel = genAI.getGenerativeModel({ model: model || 'gemini-2.5-flash' });
+    else if (effectiveProvider === 'google') {
+      const genAI = new GoogleGenerativeAI(effectiveApiKey);
+      const googleModel = genAI.getGenerativeModel({ model: effectiveModel || 'gemini-2.5-flash' });
       const result = await googleModel.generateContent({
         contents: [{ role: 'user', parts: [{ text: systemPrompt + "\n\n" + userPrompt }] }],
         generationConfig: { responseMimeType: "application/json" }
@@ -298,21 +316,26 @@ MARKET READINESS RULES:
     const isQuotaError = status === 429 || error.message?.includes('429');
 
     if (isQuotaError) {
-      if (provider === 'google') {
+      if (useServerKey) {
+        throw new Error("Free scan is temporarily at capacity. Please try again in a few minutes, or use your own API key for instant results.");
+      } else if (effectiveProvider === 'google') {
         throw new Error("Google API Error: Quota Exceeded. You are either hitting the free-tier limit or trying to use a Pro model without billing enabled in Google AI Studio. Switch to Gemini Flash or enable billing.");
-      } else if (provider === 'openai') {
+      } else if (effectiveProvider === 'openai') {
         throw new Error("OpenAI Error: Quota Exceeded. Your OpenAI account has run out of credits or you need to add a payment method at platform.openai.com.");
-      } else if (provider === 'anthropic') {
+      } else if (effectiveProvider === 'anthropic') {
         throw new Error("Anthropic Error: Quota Exceeded. Please check your console.anthropic.com billing dashboard to ensure you have active credits.");
       }
     }
 
     if (status === 401 || error.name === 'AuthenticationError') {
+      if (useServerKey) {
+        throw new Error("Free scan is temporarily unavailable. Please provide your own API key.");
+      }
       throw new Error("Invalid API Key. Please check your key and try again.");
     }
 
     if (status === 404 || error.message?.includes('not found') || error.message?.includes('does not exist')) {
-      throw new Error(`Model "${model}" not found for ${provider}. Please select a different model.`);
+      throw new Error(`Model "${effectiveModel}" not found for ${effectiveProvider}. Please select a different model.`);
     }
 
     // Re-throw user-facing errors (from inner try blocks) as-is
