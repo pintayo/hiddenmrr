@@ -57,25 +57,22 @@ function Paywall({ userId }: { userId: string }) {
           <Lock className="w-8 h-8 text-zinc-400" />
         </div>
 
-        <h2 className="text-3xl sm:text-4xl font-bold tracking-tighter text-white mb-4">Unlock Your Hidden MRR</h2>
+        <h2 className="text-3xl sm:text-4xl font-bold tracking-tighter text-white mb-4">You Saw What&apos;s Possible</h2>
         <p className="text-zinc-400 max-w-md mb-10 text-base sm:text-lg leading-relaxed">
-          One-time payment. Lifetime access. Plug in your OpenAI key and discover your
-          most profitable abandoned project instantly.
+          Your free scan showed real potential. Unlock unlimited scans to compare your entire portfolio and find the highest-ROI project.
         </p>
 
-        {/* Premium checkout CTA */}
         <div className="flex flex-col items-center gap-4 w-full max-w-sm">
           {isAvailable ? (
             <a
               id="paywall-checkout-btn"
               href={`${checkoutUrl}?checkout[custom][user_id]=${userId}`}
-              className="w-full inline-flex items-center justify-center gap-3 rounded-2xl px-8 py-5 text-[15px] font-bold text-white
-                         bg-white/[0.05] border border-white/10
-                         hover:bg-white/[0.08] hover:border-white/20 hover:-translate-y-1
+              className="w-full inline-flex items-center justify-center gap-3 rounded-2xl px-8 py-5 text-[15px] font-bold text-black
+                         bg-white hover:bg-zinc-200 hover:-translate-y-1
                          active:translate-y-0 shadow-2xl transition-all duration-300 group"
             >
-              <Sparkles className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-              Unlock Full AI Analysis — $29
+              <Sparkles className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              Go Pro — €19 Lifetime
             </a>
           ) : (
             <button
@@ -87,7 +84,18 @@ function Paywall({ userId }: { userId: string }) {
               Checkout Currently Unavailable
             </button>
           )}
-          <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold">BYOK · Secured by Lemon Squeezy</p>
+          <div className="space-y-2">
+            <div className="flex items-center justify-center gap-3 text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
+              <span>Unlimited scans</span>
+              <span className="text-zinc-800">·</span>
+              <span>Up to 20 repos</span>
+              <span className="text-zinc-800">·</span>
+              <span>Lifetime access</span>
+            </div>
+            <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold">
+              Launch price <span className="line-through text-zinc-700">€29</span> → <span className="text-primary">€19</span> · Use <span className="text-primary font-mono">FIRST10</span> for 50% off
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -126,6 +134,7 @@ export default function ClientDashboard({ hasPaid, userId, freeScansUsed }: { ha
 
   const [selectedRepos, setSelectedRepos] = useState<string[]>([]);
   const [isFetchingRepos, setIsFetchingRepos] = useState(false);
+  const [showByok, setShowByok] = useState(false);
   const [step, setStep] = useState<'config' | 'selection' | 'results'>('config');
 
   const canFreeScan = !hasPaid && freeScansUsed < 1;
@@ -205,9 +214,10 @@ export default function ClientDashboard({ hasPaid, userId, freeScansUsed }: { ha
   if (!hasPaid && freeScansUsed >= 1 && step === 'config' && !results) return <Paywall userId={userId} />;
 
   const handleFetchRepos = async () => {
-    if (!apiKey) { 
-      setError(`Please provide a ${provider === 'google' ? 'Gemini' : provider === 'anthropic' ? 'Anthropic' : 'OpenAI'} API Key.`); 
-      return; 
+    // For free scan, API key is optional (server provides one)
+    if (!canFreeScan && !apiKey) {
+      setError(`Please provide a ${provider === 'google' ? 'Gemini' : provider === 'anthropic' ? 'Anthropic' : 'OpenAI'} API Key.`);
+      return;
     }
     setError(null);
     setIsFetchingRepos(true);
@@ -363,21 +373,71 @@ export default function ClientDashboard({ hasPaid, userId, freeScansUsed }: { ha
 
       {/* ── STEP 1: CONFIG ────────────────────────────────── */}
       {step === 'config' && (
-        <div className="max-w-xl mx-auto rounded-3xl border border-white/[0.08] bg-zinc-950 p-8 sm:p-10 shadow-3xl space-y-8 animate-fade-in">
-          
+        <div className="max-w-xl mx-auto space-y-6 animate-fade-in">
+
+          {/* Free Scan CTA — zero friction */}
+          {canFreeScan && (
+            <div className="rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/5 to-zinc-950 p-8 sm:p-10 shadow-3xl space-y-6 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
+                <Sparkles className="w-7 h-7 text-primary" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tighter text-white">
+                  Get Your Free Scan
+                </h2>
+                <p className="text-zinc-400 text-base max-w-md mx-auto leading-relaxed">
+                  No API key needed. We&apos;ll analyze your repo and show you exactly what to build, who to sell to, and how to get your first customer.
+                </p>
+              </div>
+              <button
+                onClick={handleFetchRepos}
+                disabled={isFetchingRepos}
+                className="w-full max-w-sm mx-auto rounded-2xl px-6 py-5 text-[15px] font-bold text-black flex items-center justify-center gap-3
+                           bg-white hover:bg-zinc-200
+                           disabled:opacity-50 disabled:cursor-not-allowed
+                           transition-all duration-300 shadow-2xl"
+              >
+                {isFetchingRepos
+                  ? <><Loader2 className="w-5 h-5 animate-spin" /> <span className="animate-pulse">Connecting GitHub...</span></>
+                  : <><Zap className="w-5 h-5" /> Scan My Repos — Free</>
+                }
+              </button>
+              <p className="text-[10px] text-zinc-600 uppercase tracking-[0.2em] font-bold">
+                No credit card · No API key · 1 free deep scan
+              </p>
+              {error && (
+                <p className="text-red-400 text-xs font-semibold flex items-center justify-center gap-2">
+                  <Zap className="w-3.5 h-3.5 shrink-0" />{error}
+                </p>
+              )}
+
+              {/* Optional: use own key toggle */}
+              <button
+                onClick={() => setShowByok(!showByok)}
+                className="text-[10px] text-zinc-600 hover:text-zinc-400 uppercase tracking-widest font-bold transition-colors"
+              >
+                {showByok ? 'Hide' : 'Or use your own API key'}
+              </button>
+            </div>
+          )}
+
+          {/* BYOK Config — shown for paid users, or if free user opts in */}
+          {(!canFreeScan || showByok) && (
+          <div className="rounded-3xl border border-white/[0.08] bg-zinc-950 p-8 sm:p-10 shadow-3xl space-y-8">
+
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-4">
               <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 shrink-0 shadow-inner">
                 <Key className="w-5 h-5 text-zinc-400" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-white tracking-tight">Step 1: AI Provider</h2>
+                <h2 className="text-lg font-bold text-white tracking-tight">{canFreeScan ? 'Use Your Own Key' : 'AI Provider'}</h2>
                 <p className="text-sm text-zinc-500 mt-1 leading-relaxed">
                   Choose your brain. Your key is <strong className="text-zinc-300">never sent to our servers</strong>.
                 </p>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => setShowCostEstimator(true)}
               className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group"
               title="View Cost Estimates"
@@ -392,8 +452,8 @@ export default function ClientDashboard({ hasPaid, userId, freeScansUsed }: { ha
                 key={p}
                 onClick={() => handleProviderChange(p)}
                 className={`px-4 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider border transition-all
-                  ${provider === p 
-                    ? "bg-white/10 border-white/20 text-white shadow-lg" 
+                  ${provider === p
+                    ? "bg-white/10 border-white/20 text-white shadow-lg"
                     : "bg-white/[0.02] border-white/5 text-zinc-500 hover:border-white/10"}`}
               >
                 {p}
@@ -469,6 +529,8 @@ export default function ClientDashboard({ hasPaid, userId, freeScansUsed }: { ha
               }
             </button>
           </div>
+        </div>
+          )}
         </div>
       )}
 
@@ -881,29 +943,29 @@ export default function ClientDashboard({ hasPaid, userId, freeScansUsed }: { ha
               </div>
               <div className="space-y-2">
                 <h3 className="text-2xl sm:text-3xl font-black tracking-tighter text-white">
-                  Imagine this for all {repos.length > 0 ? repos.length : 'your'} repos
+                  Now compare all {repos.length > 0 ? repos.length : 'your'} repos
                 </h3>
                 <p className="text-zinc-400 max-w-lg mx-auto text-base leading-relaxed">
-                  You just saw what HiddenMRR can do with 1 repo. Unlock the full portfolio scan to find your highest-potential project across all your side projects — ranked, scored, and with a complete go-to-market plan.
+                  You saw what 1 repo looks like. Scan your entire portfolio — ranked, scored, and compared — to find the real winner.
                 </p>
               </div>
+
               {(() => {
                 const checkoutUrl = process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_URL;
-                const isAvailable = !!checkoutUrl && checkoutUrl !== "undefined";
-                return isAvailable ? (
+                return checkoutUrl && checkoutUrl !== "undefined" ? (
                   <a
                     href={`${checkoutUrl}?checkout[custom][user_id]=${userId}`}
-                    className="inline-flex items-center justify-center gap-3 rounded-2xl px-10 py-5 text-[15px] font-bold text-white
-                               bg-primary/10 border border-primary/30
-                               hover:bg-primary/20 hover:border-primary/50 hover:-translate-y-1
-                               active:translate-y-0 shadow-2xl transition-all duration-300 group"
+                    className="inline-flex items-center justify-center gap-3 rounded-2xl px-10 py-5 text-[15px] font-bold text-black
+                               bg-white hover:bg-zinc-200 hover:-translate-y-1
+                               active:translate-y-0 shadow-2xl transition-all duration-300"
                   >
-                    <Sparkles className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-                    Unlock Full Portfolio Scan — $29
+                    <Sparkles className="w-5 h-5" /> Go Pro — €19 Lifetime
                   </a>
                 ) : null;
               })()}
-              <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold">One-time payment · Up to 20 repos · Lifetime access</p>
+              <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold">
+                Launch price <span className="line-through text-zinc-700">€29</span> · Use <span className="text-primary font-mono">FIRST10</span> for 50% off · No subscription
+              </p>
             </div>
           )}
 

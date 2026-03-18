@@ -21,7 +21,6 @@ export async function POST(req: Request) {
 
     if (eventName === 'order_created') {
       const orderId = data.data.id;
-      // It's expected that you pass the user's GitHub ID in Lemon Squeezy custom data
       const userId = data.meta.custom_data?.user_id;
 
       if (userId) {
