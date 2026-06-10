@@ -152,11 +152,11 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-center gap-3 text-sm flex-wrap">
           <span className="px-2 py-0.5 rounded-full bg-primary text-black text-[10px] font-black uppercase tracking-widest">Launch Deal</span>
           <span className="text-zinc-300 font-medium">
-            Pro: <span className="text-white font-black">€19</span> <span className="line-through text-zinc-500">€29</span>
+            Pro: <span className="text-white font-black">€12</span> <span className="line-through text-zinc-500">€29</span>
           </span>
           <span className="text-zinc-600">·</span>
           <span className="text-zinc-300 font-medium">
-            First 10 users: <span className="font-mono text-primary font-black">FIRST10</span> for 50% off
+            One-time payment · lifetime access · no subscription
           </span>
           {!countdown.expired && (
             <>
@@ -678,7 +678,7 @@ export default function Home() {
             </div>
             <div className="relative z-10">
               <div className="flex items-end gap-3 mb-1">
-                <span className="text-5xl font-black text-white tracking-tighter">€19</span>
+                <span className="text-5xl font-black text-white tracking-tighter">€12</span>
                 <span className="text-zinc-500 text-sm font-medium pb-2">lifetime</span>
                 <span className="text-zinc-700 text-sm line-through pb-2">€29</span>
               </div>
@@ -705,9 +705,7 @@ export default function Home() {
                 <LoginButton />
               </div>
 
-              <p className="text-center text-zinc-600 text-[10px] font-black uppercase tracking-widest mt-5">
-                Use <span className="text-primary font-mono">FIRST10</span> for 50% off
-              </p>
+              <p className="text-center text-zinc-600 text-[10px] font-black uppercase tracking-widest mt-5">One payment. Yours forever.</p>
             </div>
           </div>
         </div>
@@ -722,8 +720,8 @@ export default function Home() {
             answer="Yes, 100% free. No API key, no credit card. Connect GitHub, pick a repo, get a full Market Readiness Plan with go-to-market roadmap, brutally honest scoring, and actionable next steps. We cover the AI cost for your first scan."
           />
           <FAQItem
-            question="Why €19?"
-            answer="€19 one-time unlocks unlimited scans forever: compare up to 20 repos at once, find your best project, and rescan as your code evolves. No subscriptions. That's less than a month of most SaaS tools — and one good revival easily pays for it 100x over. Use code FIRST10 for 50% off (first 10 users only)."
+            question="Why €12?"
+            answer="€12 one-time unlocks unlimited scans forever: compare up to 20 repos at once, find your best project, and rescan as your code evolves. No subscriptions. That's less than lunch — and one good revival easily pays for it 100x over."
           />
           <FAQItem
             question="What repositories can you analyze?"

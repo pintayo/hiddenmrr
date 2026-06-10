@@ -85,9 +85,9 @@ export async function analyzeSelectedRepos(
 
   if (!profile?.has_paid && !isFreeEligible) {
     if (repoFullNames.length > 1) {
-      throw new Error("Multi-repo scan requires the Pro plan (€19 one-time). Unlock unlimited scans forever.");
+      throw new Error("Multi-repo scan requires the Pro plan (€12 one-time). Unlock unlimited scans forever.");
     }
-    throw new Error("You've used your free scan. Go Pro for €19 (unlimited scans, up to 20 repos, lifetime access).");
+    throw new Error("You've used your free scan. Go Pro for €12 (unlimited scans, up to 20 repos, lifetime access).");
   }
 
   // For free scans, use the server-side managed Gemini API key (no BYOK friction)

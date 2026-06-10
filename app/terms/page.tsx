@@ -71,8 +71,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-bold text-white mb-3">4. Payment</h2>
             <p>
               Access to paid features requires a one-time payment of{' '}
-              <strong className="text-white">USD $29</strong> (or local currency equivalent as
-              displayed at checkout), processed by our payment partner{' '}
+              <strong className="text-white">the amount displayed at checkout</strong> (currently EUR €12), processed by our payment partner{' '}
               <strong className="text-white">Lemon Squeezy</strong>, who acts as Merchant of Record.
               All prices are inclusive of applicable taxes where required by law. Payment is charged
               immediately upon purchase.

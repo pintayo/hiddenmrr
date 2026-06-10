@@ -72,7 +72,7 @@ function Paywall({ userId }: { userId: string }) {
                          active:translate-y-0 shadow-2xl transition-all duration-300 group"
             >
               <Sparkles className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              Go Pro — €19 Lifetime
+              Go Pro — €12 Lifetime
             </a>
           ) : (
             <button
@@ -93,7 +93,7 @@ function Paywall({ userId }: { userId: string }) {
               <span>Lifetime access</span>
             </div>
             <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold">
-              Launch price <span className="line-through text-zinc-700">€29</span> → <span className="text-primary">€19</span> · Use <span className="text-primary font-mono">FIRST10</span> for 50% off
+              Launch price <span className="line-through text-zinc-700">€29</span> → <span className="text-primary">€12</span> · One-time · Lifetime access
             </p>
           </div>
         </div>
@@ -959,12 +959,12 @@ export default function ClientDashboard({ hasPaid, userId, freeScansUsed }: { ha
                                bg-white hover:bg-zinc-200 hover:-translate-y-1
                                active:translate-y-0 shadow-2xl transition-all duration-300"
                   >
-                    <Sparkles className="w-5 h-5" /> Go Pro — €19 Lifetime
+                    <Sparkles className="w-5 h-5" /> Go Pro — €12 Lifetime
                   </a>
                 ) : null;
               })()}
               <p className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-bold">
-                Launch price <span className="line-through text-zinc-700">€29</span> · Use <span className="text-primary font-mono">FIRST10</span> for 50% off · No subscription
+                Launch price <span className="line-through text-zinc-700">€29</span> → <span className="text-primary">€12</span> · One-time · No subscription
               </p>
             </div>
           )}
