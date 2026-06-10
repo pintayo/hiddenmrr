@@ -66,7 +66,7 @@ function Paywall({ userId }: { userId: string }) {
           {isAvailable ? (
             <a
               id="paywall-checkout-btn"
-              href={`${checkoutUrl}?checkout[custom][user_id]=${userId}`}
+              href={`${checkoutUrl}?checkout[custom][user_id]=${userId}&checkout[discount_code]=LAUNCH12`} /* LAUNCH12 = -€17 so checkout totals €12; remove once variant price is 1200 in LS dashboard */
               className="w-full inline-flex items-center justify-center gap-3 rounded-2xl px-8 py-5 text-[15px] font-bold text-black
                          bg-white hover:bg-zinc-200 hover:-translate-y-1
                          active:translate-y-0 shadow-2xl transition-all duration-300 group"
@@ -954,7 +954,7 @@ export default function ClientDashboard({ hasPaid, userId, freeScansUsed }: { ha
                 const checkoutUrl = process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_URL;
                 return checkoutUrl && checkoutUrl !== "undefined" ? (
                   <a
-                    href={`${checkoutUrl}?checkout[custom][user_id]=${userId}`}
+                    href={`${checkoutUrl}?checkout[custom][user_id]=${userId}&checkout[discount_code]=LAUNCH12`} /* LAUNCH12 = -€17 so checkout totals €12; remove once variant price is 1200 in LS dashboard */
                     className="inline-flex items-center justify-center gap-3 rounded-2xl px-10 py-5 text-[15px] font-bold text-black
                                bg-white hover:bg-zinc-200 hover:-translate-y-1
                                active:translate-y-0 shadow-2xl transition-all duration-300"
