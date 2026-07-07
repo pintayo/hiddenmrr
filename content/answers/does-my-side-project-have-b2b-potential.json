@@ -1,0 +1,27 @@
+{
+  "slug": "does-my-side-project-have-b2b-potential",
+  "question": "How to Tell If Your Side Project Has Real B2B Potential",
+  "metaTitle": "How to Tell If Your Side Project Has Real B2B Potential",
+  "metaDescription": "A quick, honest audit to tell whether a side project can become a paying B2B tool: the signals that predict revenue, the red flags that predict €0, and a checklist to run today.",
+  "datePublished": "2026-07-06",
+  "dateModified": "2026-07-06",
+  "keywords": ["b2b saas potential", "validate side project", "is my idea b2b", "does my side project have market"],
+  "tldr": "A side project has B2B potential when a business — not a hobbyist — loses measurable time or money without it, feels that pain repeatedly, and can be reached without paid ads. If you can name the company, the recurring pain, and where to find 100 of them, you have a candidate. If you can't, it's a hobby — and that's fine.",
+  "sections": [
+    { "h2": "Green flags (build)", "body": ["The signals that a side project could pay:"], "list": ["A named business buyer you can point to, not 'everyone'.", "A recurring, expensive, boring pain — the kind teams already spend time or money on.", "An existing budget line it replaces or reduces.", "A reachable niche: a subreddit, forum, Slack, or marketplace where the buyers gather.", "It plugs into a tool teams already pay for (an integration is a distribution channel)."] },
+    { "h2": "Red flags (stop)", "body": ["The signals that predict €0:"], "list": ["Only consumers would use it — consumers rarely pay for tools.", "The pain is one-time, not recurring.", "The target is 'everyone', which always means no one.", "It competes on price against a good-enough free incumbent.", "You genuinely can't find where the buyers gather."] },
+    { "h2": "The 'who loses money' test", "body": ["Finish this sentence out loud: 'A [specific role] at a [specific kind of business] loses [time or money] every [week or month] without this.' If you can fill every bracket with something concrete, you have B2B potential. If the answer is vague, the fit is weak — no amount of polish fixes a missing buyer."] },
+    { "h2": "Validate in writing, faceless", "body": ["You do not need calls or a camera. Post the exact problem and your solution where the niche gathers, or publish an answer page targeting the query they type into Google or ChatGPT, and watch for replies and sign-ups. Written interest from strangers who owe you nothing is the signal you're looking for."] },
+    { "h2": "The checklist", "body": ["Run this in one sitting:"], "list": ["Name the specific buyer.", "Name the recurring pain.", "Estimate what that pain costs them per month.", "Find three strangers describing it in the last year.", "Find where 100 of them gather.", "Put up a one-page offer with a price.", "Count the responses — not the likes, the replies and sign-ups."], "listType": "ol" }
+  ],
+  "faq": [
+    { "q": "Can a developer-tool side project be B2B if devs are the users?", "a": "Yes — developers at companies are B2B buyers when the tool saves the team time or reduces risk. The test is whether a company would expense it, not whether an individual dev thinks it's neat. 'Cool for devs' and 'a company will pay' are different questions." },
+    { "q": "How much validation is enough before building more?", "a": "Enough that real strangers have either said 'I have exactly this problem' or paid you. A handful of genuine, unsolicited yeses beats a big waitlist of polite maybes, because maybes don't churn — they just never convert." },
+    { "q": "What if my project is technically cool but solves no business pain?", "a": "Then it's a portfolio piece, not a business — which is a completely legitimate thing to own. Don't force B2B onto it. Put your commercial energy into the project that passes the 'who loses money' test, and keep the cool one as the thing you build for joy." }
+  ],
+  "related": [
+    { "slug": "find-saas-idea-in-abandoned-github-repos", "title": "How to find a profitable SaaS idea in your abandoned GitHub repos" },
+    { "slug": "start-new-project-or-finish-old-one", "title": "Should you start a new project or finish an old one?" },
+    { "slug": "micro-saas-pricing", "title": "Micro-SaaS pricing: what to charge for a small dev tool" }
+  ]
+}

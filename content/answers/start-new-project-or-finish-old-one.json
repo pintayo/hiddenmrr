@@ -1,0 +1,26 @@
+{
+  "slug": "start-new-project-or-finish-old-one",
+  "question": "Should You Start a New Project or Finish an Old One?",
+  "metaTitle": "Should You Start a New Project or Finish an Old One?",
+  "metaDescription": "The honest decision framework for developers torn between a shiny new idea and an unfinished old one — and why 'new' usually loses.",
+  "datePublished": "2026-07-06",
+  "dateModified": "2026-07-06",
+  "keywords": ["start new project or finish old", "developer project decision", "finish side project", "should I start a new project"],
+  "tldr": "Finish the old one if it already has evidence a real person needs it; start new only if the old one fails that test. New ideas feel better because they're pure potential with no bugs yet — that feeling is a trap, not a signal. Validation beats novelty almost every time.",
+  "sections": [
+    { "h2": "Why 'new' always feels better (and why that's the trap)", "body": ["A new idea is pure possibility with no accumulated problems, no boring edge cases, no distribution work you've been avoiding. The excitement you feel is about escaping the hard 80% of the old project, not about the merit of the new one. Name that honestly and the decision gets easier."] },
+    { "h2": "The one question that decides it", "body": ["Does the old project have any evidence that someone other than you wants it — a user, an unsolicited request, real search volume, or your own repeated pain? If yes, finishing it is lower-risk than starting from zero, because the hardest question in software (does anyone need this) is already partly answered."] },
+    { "h2": "The switching cost nobody counts", "body": ["Every restart resets you to the hardest parts — validation and distribution — while handing you a fresh 'build' phase to hide in. Serial starting is how you stay permanently busy and permanently at €0. The graveyard of 20 repos is usually 20 escapes from the same 80%, not 20 bad ideas."] },
+    { "h2": "When starting new is the right call", "body": ["Start new when the old project genuinely fails the evidence test, the market moved under it, or you've honestly learned it solves a non-problem. When that's true, kill it cleanly and carry the lesson forward — don't just abandon it and let it haunt your next decision."] }
+  ],
+  "faq": [
+    { "q": "I have 20 unfinished projects. Where do I even start?", "a": "Score them on payer, recurrence, and reachability, pick the single highest scorer, and ignore the other 19 completely. One finished project beats twenty started ones, and the act of choosing is most of the battle." },
+    { "q": "Isn't finishing boring compared to building something new?", "a": "Yes, and that boredom is the price of shipping. The building part is the commodity; the boring parts — finishing and distribution — are exactly where the money and the moat live, because they're the parts most people quit before reaching." },
+    { "q": "How do I know if I'm just afraid to finish?", "a": "If you can always start the next new thing but never launch the last one, the pattern is avoidance of judgment, not a shortage of ideas. Shipping the old project — and surviving the verdict — is the cure, not another blank repo." }
+  ],
+  "related": [
+    { "slug": "find-saas-idea-in-abandoned-github-repos", "title": "How to find a profitable SaaS idea in your abandoned GitHub repos" },
+    { "slug": "make-money-from-unfinished-side-projects", "title": "How to make money from unfinished side projects" },
+    { "slug": "does-my-side-project-have-b2b-potential", "title": "How to tell if your side project has real B2B potential" }
+  ]
+}

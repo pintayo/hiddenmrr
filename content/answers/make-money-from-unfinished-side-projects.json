@@ -1,0 +1,27 @@
+{
+  "slug": "make-money-from-unfinished-side-projects",
+  "question": "How to Make Money From Unfinished Side Projects",
+  "metaTitle": "How to Make Money From Unfinished Side Projects",
+  "metaDescription": "You don't need a new idea — you need to finish the right old one. How to turn an unfinished side project into a small, paying product without rebuilding it from scratch.",
+  "datePublished": "2026-07-06",
+  "dateModified": "2026-07-06",
+  "keywords": ["make money from side projects", "monetize unfinished projects", "ship a side project", "micro-saas from side project"],
+  "tldr": "The fastest money from an unfinished side project comes from narrowing it, not finishing it. Cut it to the single feature someone would pay for, put a €9–29 price on that, and ship that slice this week. 'Done' is the smallest version a stranger will pay for — not your original vision.",
+  "sections": [
+    { "h2": "Finishing is not completing your original vision", "body": ["The reason a side project stays unfinished is almost always the scope you imagined for it. Redefine 'done' as the smallest paid slice a real person would buy today, and most of your unfinished projects are suddenly 80% closer to shipping than you thought.", "The full vision can wait. The slice pays for the vision."] },
+    { "h2": "Find the one feature with a price tag", "body": ["Of everything you planned, which single capability would a business pay €9–29 for right now? Sell that. Put the rest of the roadmap in a 'later' file and stop looking at it. A tool that does one painful job well beats a half-built platform that does ten things at 40%."] },
+    { "h2": "Charge before you polish", "body": ["Put up a checkout (Lemon Squeezy, Stripe, or Gumroad) and a one-page pitch before you add a single feature. A pre-sale or a first sale tells you whether to keep going. Polishing a product for zero buyers is procrastination with good lighting."] },
+    { "h2": "The distribution reality", "body": ["Building is 20% of the work; being found is the other 80%. Before you write more code, answer: where do the people with this pain already gather? Then answer their exact question publicly — a subreddit, a Hacker News thread, an answer page an AI can quote — instead of shouting into a feed nobody reads."] },
+    { "h2": "Decide your kill criteria up front", "body": ["Write down what 'no' looks like before you start: for example, 'if 0 sales after I show this to 50 relevant people, I shelve it.' This is what protects you from the classic trap — eight months of building and posting for sixteen downloads — because it forces a validation checkpoint that your excitement will otherwise skip."] }
+  ],
+  "faq": [
+    { "q": "What if the side project is only 40% built?", "a": "40% is often enough to sell if that 40% contains the one feature people actually want. Ship the working slice, mark the rest 'coming soon,' and let real buyers fund the other 60%. Finished-in-your-head is worth less than half-built-and-selling." },
+    { "q": "Should I open-source it instead?", "a": "Open-source is distribution, not revenue, unless you pair it with a paid hosted version or a pro tier. Use OSS to get seen and trusted; charge for the part teams won't want to self-host and maintain." },
+    { "q": "How do I price something half-finished?", "a": "Price the value of the one job it does, not the hours you put in or how 'done' it feels. A €19 tool that saves someone an hour a week is a bargain; 'it's not finished so it should be cheap' is the wrong frame and trains buyers to undervalue it." }
+  ],
+  "related": [
+    { "slug": "find-saas-idea-in-abandoned-github-repos", "title": "How to find a profitable SaaS idea in your abandoned GitHub repos" },
+    { "slug": "start-new-project-or-finish-old-one", "title": "Should you start a new project or finish an old one?" },
+    { "slug": "micro-saas-pricing", "title": "Micro-SaaS pricing: what to charge for a small dev tool" }
+  ]
+}

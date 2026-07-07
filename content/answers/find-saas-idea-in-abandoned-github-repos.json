@@ -1,0 +1,75 @@
+{
+  "slug": "find-saas-idea-in-abandoned-github-repos",
+  "question": "How to Find a Profitable SaaS Idea in Your Abandoned GitHub Repos",
+  "metaTitle": "How to Find a Profitable SaaS Idea in Your Abandoned GitHub Repos",
+  "metaDescription": "A practical method to audit your old side projects for real B2B revenue: the three commercial signals that matter, honest odds, pricing math, and a 30-minute audit you can run today.",
+  "datePublished": "2026-07-06",
+  "dateModified": "2026-07-06",
+  "keywords": ["find saas idea in github repos", "monetize abandoned side projects", "b2b micro-saas idea", "audit old repositories for revenue", "make money from side projects"],
+  "tldr": "Most abandoned repos are not businesses — but one or two might be. To find them, stop judging the code and judge the problem: look for a boring, recurring pain that a business loses money on. Score each repo on payer, recurrence, and reachability; anything scoring high is worth a weekend, and the rest you delete guilt-free.",
+  "sections": [
+    {
+      "h2": "The mistake: judging repos by code, not by pain",
+      "body": [
+        "When developers reopen an old project, they read the code and decide based on how clean it is. That is the wrong axis. Commercial value lives in the problem you were solving, not in the quality of the solution. A rough, half-finished script that automates a painful, recurring B2B task is worth more than a beautifully architected app nobody needs.",
+        "The abandoned repo you are embarrassed by might be sitting on the only thing that actually matters in SaaS: evidence that a real problem annoyed you enough to build something for it."
+      ]
+    },
+    {
+      "h2": "The three signals that predict revenue",
+      "body": ["Score every old repo from 0 to 2 on each of these. Anything totalling 4 or more deserves a serious second look:"],
+      "list": [
+        "Payer — is there a business that measurably loses time or money without this? Consumers rarely pay; businesses do.",
+        "Recurrence — is the pain monthly and ongoing, not a one-time fix? Recurring pain is what sustains recurring revenue.",
+        "Reachability — can you find 100 of these people without paid ads (a subreddit, a niche forum, a Slack, an integration marketplace)?"
+      ]
+    },
+    {
+      "h2": "Where the hidden ideas actually hide",
+      "body": ["The repos most likely to contain a business are the unglamorous ones:"],
+      "list": [
+        "Internal tools you built to scratch your own itch — you were the validated first customer.",
+        "Scripts that automate a tedious manual process you or a client hated doing.",
+        "A wrapper you wrote around an expensive, clunky, or badly documented API.",
+        "Something you built for freelance work — a paying client already proved demand once."
+      ]
+    },
+    {
+      "h2": "Pricing reality for a solo dev tool",
+      "body": [
+        "Be honest with the math before you fantasise about MRR. A one-time utility sells for roughly €9 to €49; something with ongoing value sustains €9 to €29 per month. B2B tolerates 5 to 10 times consumer pricing, so lean B2B.",
+        "The receipts: a €9 one-time tool needs about 110 sales a month to clear €1,000. A €29-per-month tool needs about 35 active subscribers for the same €1,000 — and it compounds instead of resetting to zero every month. Under-pricing to 'get users' usually just gets you unpaid support tickets."
+      ]
+    },
+    {
+      "h2": "The brutal part",
+      "body": [
+        "Around 90% of your repos are not businesses, and that is completely fine. The point of this exercise is not to save every project — it is to find the one or two that are real and delete the rest without guilt.",
+        "Finishing the right old project beats starting a shiny new one, because the single riskiest question in any software business — does anyone actually need this — is already partly answered by the fact that you once needed it enough to build it."
+      ]
+    },
+    {
+      "h2": "A 30-minute audit you can run today",
+      "body": ["You do not need a tool to start. You need thirty focused minutes:"],
+      "list": [
+        "List your repos sorted by last-touched date.",
+        "For each, finish one sentence: 'A ___ loses ___ without this.' If you cannot finish it, it is probably not a business.",
+        "Score your top candidates 0 to 2 on payer, recurrence, and reachability.",
+        "Take the single highest scorer. Search Reddit and Hacker News for three strangers describing the same pain in the last year.",
+        "If you find them, that repo is your weekend. If you do not, move to the next and keep the bar high."
+      ],
+      "listType": "ol"
+    }
+  ],
+  "faq": [
+    { "q": "Should I finish an old project or start a new one?", "a": "Finish the old one if it scores 4 or more on payer, recurrence, and reachability. The hardest question in any SaaS is whether anyone actually needs this, and a project you built from real friction already has a head start on the answer that a brand-new idea does not." },
+    { "q": "Do GitHub stars mean a repo can make money?", "a": "Not directly. Stars measure developer curiosity, not willingness to pay. A repo with 12 stars solving a boring B2B billing problem can out-earn a 2,000-star developer toy. Look at who opens issues and why, not the star count." },
+    { "q": "How much can a single abandoned repo realistically make?", "a": "Most make €0. The realistic win for a solo developer is a €9 to €29 per month micro-SaaS, or a one-time tool doing €200 to €1,000 per month — enough to matter, not quit-your-job-tomorrow money. Anyone promising more is usually selling you a course." },
+    { "q": "What is the fastest way to audit many repos at once?", "a": "Score them on three axes — payer, recurrence, reachability — in a spreadsheet, or use a tool like HiddenMRR that reads each repo's README and package.json and flags commercial signal automatically. Either way the goal is to shortlist one or two, not to rank all forty." }
+  ],
+  "related": [
+    { "slug": "make-money-from-unfinished-side-projects", "title": "How to make money from unfinished side projects" },
+    { "slug": "start-new-project-or-finish-old-one", "title": "Should you start a new project or finish an old one?" },
+    { "slug": "micro-saas-pricing", "title": "Micro-SaaS pricing: what to charge for a small dev tool" }
+  ]
+}

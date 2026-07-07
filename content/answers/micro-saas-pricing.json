@@ -1,0 +1,27 @@
+{
+  "slug": "micro-saas-pricing",
+  "question": "Micro-SaaS Pricing: What to Charge for a Small Dev Tool",
+  "metaTitle": "Micro-SaaS Pricing: What to Charge for a Small Dev Tool",
+  "metaDescription": "How to price a micro-SaaS or small developer tool: one-time vs subscription, the B2B multiplier, the numbers you need to hit €1,000/mo, and why underpricing hurts.",
+  "datePublished": "2026-07-06",
+  "dateModified": "2026-07-06",
+  "keywords": ["micro-saas pricing", "how to price a dev tool", "saas pricing solo developer", "one-time vs subscription pricing"],
+  "tldr": "Price a micro-SaaS on the value of the job it does, not your costs. For a solo dev tool that's usually €9–49 one-time or €9–29 per month; B2B tolerates 5–10x consumer pricing. Aim high enough that roughly 35 subscribers or 110 one-time sales a month clears €1,000 — underpricing just buys you support tickets.",
+  "sections": [
+    { "h2": "One-time vs subscription", "body": ["One-time pricing suits utilities people run and forget. Subscription suits ongoing value — data that changes, monitoring, updates, anything that keeps working for the customer every month. Subscriptions compound; one-time sales reset to zero every month. If there is any recurring value at all, lean subscription."] },
+    { "h2": "The B2B multiplier", "body": ["The exact same tool sold to a business commands 5 to 10 times a consumer price, because it saves payroll time rather than hobby time. Position for the business buyer — the person who expenses it — and price for the money you save them, not the hours you spent building."] },
+    { "h2": "The numbers that matter", "body": ["€1,000 a month is about 110 sales at €9 one-time, or roughly 35 subscribers at €29 per month, or about 20 at €49. Work backwards: pick the price where the customer count you need is realistic for the audience you can actually reach. If a price needs 500 buyers you can't find, it's the wrong price."] },
+    { "h2": "Why underpricing backfires", "body": ["Cheap signals low value, attracts the neediest customers, and caps your revenue while the support load stays exactly the same. Raising a €5 tool to €19 rarely loses the serious buyers — and the ones it loses were usually the ones who filed the most tickets."] },
+    { "h2": "Anchoring and tiers", "body": ["A single price is completely fine to start. When you do add tiers, make the middle one the obvious best value and use the top tier to anchor perception. Don't build tiers before you have buyers, though — pricing pages with three columns and zero customers are a form of procrastination."] }
+  ],
+  "faq": [
+    { "q": "Should my first dev tool be free to get users?", "a": "Free gets you users, not revenue and not signal about willingness to pay. A small price of €9 or more filters for people who actually have the problem, and ten paying users teach you far more than a thousand free ones." },
+    { "q": "One-time €9 or €9/month — which makes more?", "a": "€9 per month, almost always, provided the tool keeps delivering value. Holding 35 subscribers is easier and more predictable than closing 110 brand-new sales every single month just to stand still." },
+    { "q": "How do I raise prices without losing customers?", "a": "Grandfather existing users at their current price, raise it only for new signups, and let the new revenue prove the tool supports it. For genuinely useful B2B tools, the churn people fear at higher prices usually doesn't show up." }
+  ],
+  "related": [
+    { "slug": "find-saas-idea-in-abandoned-github-repos", "title": "How to find a profitable SaaS idea in your abandoned GitHub repos" },
+    { "slug": "make-money-from-unfinished-side-projects", "title": "How to make money from unfinished side projects" },
+    { "slug": "does-my-side-project-have-b2b-potential", "title": "How to tell if your side project has real B2B potential" }
+  ]
+}

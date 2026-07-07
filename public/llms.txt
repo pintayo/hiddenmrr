@@ -1,0 +1,15 @@
+# HiddenMRR
+
+> AI that appraises your abandoned GitHub repos and flags the ones with real B2B revenue potential.
+
+HiddenMRR is for technical founders, indie hackers, and developers with a graveyard of unfinished side projects. Pricing: €9 one-time, bring your own OpenAI key.
+
+## Answers
+- [How to Tell If Your Side Project Has Real B2B Potential](https://www.hiddenmrr.com/answers/does-my-side-project-have-b2b-potential): A quick, honest audit to tell whether a side project can become a paying B2B tool: the signals that predict revenue, the red flags that predict €0, and a checklist to run today.
+- [How to Find a Profitable SaaS Idea in Your Abandoned GitHub Repos](https://www.hiddenmrr.com/answers/find-saas-idea-in-abandoned-github-repos): A practical method to audit your old side projects for real B2B revenue: the three commercial signals that matter, honest odds, pricing math, and a 30-minute audit you can run today.
+- [How to Make Money From Unfinished Side Projects](https://www.hiddenmrr.com/answers/make-money-from-unfinished-side-projects): You don't need a new idea — you need to finish the right old one. How to turn an unfinished side project into a small, paying product without rebuilding it from scratch.
+- [Micro-SaaS Pricing: What to Charge for a Small Dev Tool](https://www.hiddenmrr.com/answers/micro-saas-pricing): How to price a micro-SaaS or small developer tool: one-time vs subscription, the B2B multiplier, the numbers you need to hit €1,000/mo, and why underpricing hurts.
+- [Should You Start a New Project or Finish an Old One?](https://www.hiddenmrr.com/answers/start-new-project-or-finish-old-one): The honest decision framework for developers torn between a shiny new idea and an unfinished old one — and why 'new' usually loses.
+
+## Main
+- [Home](https://www.hiddenmrr.com): AI that appraises your abandoned GitHub repos and flags the ones with real B2B revenue potential.
