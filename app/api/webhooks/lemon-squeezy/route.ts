@@ -22,15 +22,58 @@ export async function POST(req: Request) {
     if (eventName === 'order_created') {
       const orderId = data.data.id;
       const userId = data.meta.custom_data?.user_id;
+      const buyerEmail = data.data.attributes?.user_email;
 
       if (userId) {
-        await supabaseAdmin
+        const { data: updated, error } = await supabaseAdmin
           .from('profiles')
           .update({
             has_paid: true,
             lemon_squeezy_order_id: orderId,
           })
-          .eq('id', String(userId));
+          .eq('id', String(userId))
+          .select('id');
+
+        if (error || !updated?.length) {
+          // Paid order that failed to unlock — never swallow this silently.
+          console.error(
+            `PAYMENT NOT FULFILLED: order ${orderId} for user_id ${userId} (${buyerEmail}) — profile update failed`,
+            error
+          );
+        }
+      } else if (buyerEmail) {
+        // No user_id in custom data (e.g. bought via a direct store link).
+        // Fall back to matching the buyer's email against profiles.
+        const { data: updated, error } = await supabaseAdmin
+          .from('profiles')
+          .update({
+            has_paid: true,
+            lemon_squeezy_order_id: orderId,
+          })
+          .eq('email', buyerEmail)
+          .select('id');
+
+        if (error || !updated?.length) {
+          console.error(
+            `PAYMENT NOT FULFILLED: order ${orderId} has no user_id and no profile matches email ${buyerEmail} — manual follow-up needed`
+          );
+        }
+      } else {
+        console.error(
+          `PAYMENT NOT FULFILLED: order ${orderId} arrived with no user_id and no email — manual follow-up needed`
+        );
+      }
+    }
+
+    if (eventName === 'order_refunded') {
+      const orderId = data.data.id;
+      const { error } = await supabaseAdmin
+        .from('profiles')
+        .update({ has_paid: false })
+        .eq('lemon_squeezy_order_id', orderId);
+
+      if (error) {
+        console.error(`Refund revoke failed for order ${orderId}:`, error);
       }
     }
 
